@@ -2,85 +2,164 @@
 //  ContentView.swift
 //  MacroLens
 //
-//  Created by Rudra on 15/10/25.
+//  Path: MacroLens/ContentView.swift
 //
 
 import SwiftUI
-import CoreData
 
 struct ContentView: View {
-    @Environment(\.managedObjectContext) private var viewContext
+    
+    @StateObject private var authViewModel = AuthViewModel()
+    
+    var body: some View {
+        Group {
+            if authViewModel.isAuthenticated {
+                // Main app (placeholder for Day 3+)
+                MainTabView()
+            } else {
+                // Login screen
+                LoginView()
+            }
+        }
+        .environmentObject(authViewModel)
+    }
+}
 
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
-        animation: .default)
-    private var items: FetchedResults<Item>
+// MARK: - Main Tab View (Placeholder)
+struct MainTabView: View {
+    
+    @EnvironmentObject var authViewModel: AuthViewModel
+    
+    var body: some View {
+        TabView {
+            // Home Tab
+            HomeTabPlaceholder()
+                .tabItem {
+                    Label("Home", systemImage: "house.fill")
+                }
+            
+            // Scan Tab
+            ScanTabPlaceholder()
+                .tabItem {
+                    Label("Scan", systemImage: "camera.fill")
+                }
+            
+            // Profile Tab
+            ProfileTabPlaceholder()
+                .tabItem {
+                    Label("Profile", systemImage: "person.fill")
+                }
+        }
+        .accentColor(.primaryStart)
+    }
+}
 
+// MARK: - Tab Placeholders
+struct HomeTabPlaceholder: View {
     var body: some View {
         NavigationView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-                    } label: {
-                        Text(item.timestamp!, formatter: itemFormatter)
-                    }
+            ZStack {
+                Color.backgroundPrimary.ignoresSafeArea()
+                
+                VStack(spacing: Constants.UI.spacing16) {
+                    Image(systemName: "house.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 60, height: 60)
+                        .foregroundStyle(Color.primaryGradient)
+                    
+                    Text("Home View")
+                        .font(.headlineLarge)
+                        .foregroundColor(.textPrimary)
+                    
+                    Text("Coming in Day 3")
+                        .font(.bodyMedium)
+                        .foregroundColor(.textSecondary)
                 }
-                .onDelete(perform: deleteItems)
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-            Text("Select an item")
-        }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
+            .navigationTitle("MacroLens")
         }
     }
 }
 
-private let itemFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .short
-    formatter.timeStyle = .medium
-    return formatter
-}()
+struct ScanTabPlaceholder: View {
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Color.backgroundPrimary.ignoresSafeArea()
+                
+                VStack(spacing: Constants.UI.spacing16) {
+                    Image(systemName: "camera.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 60, height: 60)
+                        .foregroundStyle(Color.primaryGradient)
+                    
+                    Text("Food Scanner")
+                        .font(.headlineLarge)
+                        .foregroundColor(.textPrimary)
+                    
+                    Text("Coming in Day 4")
+                        .font(.bodyMedium)
+                        .foregroundColor(.textSecondary)
+                }
+            }
+            .navigationTitle("Scan Food")
+        }
+    }
+}
 
-#Preview {
-    ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+struct ProfileTabPlaceholder: View {
+    
+    @EnvironmentObject var authViewModel: AuthViewModel
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Color.backgroundPrimary.ignoresSafeArea()
+                
+                VStack(spacing: Constants.UI.spacing24) {
+                    // User Info
+                    if let user = authViewModel.user {
+                        VStack(spacing: Constants.UI.spacing12) {
+                            Image(systemName: "person.circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 80, height: 80)
+                                .foregroundStyle(Color.primaryGradient)
+                            
+                            Text(user.fullName)
+                                .font(.headlineLarge)
+                                .foregroundColor(.textPrimary)
+                            
+                            Text(user.email)
+                                .font(.bodyMedium)
+                                .foregroundColor(.textSecondary)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    // Logout Button
+                    MLButton.destructive(
+                        "Log Out",
+                        icon: "arrow.right.square"
+                    ) {
+                        authViewModel.logout()
+                    }
+                    .padding(.horizontal, Constants.UI.spacing24)
+                    .padding(.bottom, Constants.UI.spacing32)
+                }
+                .padding(.top, 60)
+            }
+            .navigationTitle("Profile")
+        }
+    }
+}
+
+// MARK: - Preview
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
 }
