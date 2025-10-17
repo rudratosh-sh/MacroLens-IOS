@@ -18,7 +18,7 @@ struct ContentView: View {
                 MainTabView()
             } else {
                 // Login screen
-                LoginView()
+                Text("Login")
             }
         }
         .environmentObject(authViewModel)

@@ -187,11 +187,34 @@ extension View {
     
     /// Apply tight letter spacing for numbers
     func numberSpacing() -> some View {
-        self.tracking(-0.5)
+        if #available(iOS 16.0, *) {
+            return AnyView(self.tracking(-0.5))
+        } else {
+            // Best-effort fallback: apply kerning for Text; otherwise no-op
+            return AnyView(self.modifier(KerningIfText(kerning: -0.5)))
+        }
     }
     
     /// Apply loose letter spacing for headings
     func headingSpacing() -> some View {
-        self.tracking(0.5)
+        if #available(iOS 16.0, *) {
+            return AnyView(self.tracking(0.5))
+        } else {
+            // Best-effort fallback: apply kerning for Text; otherwise no-op
+            return AnyView(self.modifier(KerningIfText(kerning: 0.5)))
+        }
+    }
+}
+
+// MARK: - Fallback kerning for Text on older iOS
+private struct KerningIfText: ViewModifier {
+    let kerning: CGFloat
+    func body(content: Content) -> some View {
+        if #available(iOS 16.0, *) {
+            content.kerning(kerning)
+        } else {
+            // On older iOS, kerning modifier isn't available; return content unchanged.
+            content
+        }
     }
 }
