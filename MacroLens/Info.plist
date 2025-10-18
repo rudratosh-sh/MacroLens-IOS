@@ -2,7 +2,48 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>UIBackgroundModes</key>
-	<array/>
+    <!-- Core bundle identity -->
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    <key>CFBundleName</key>
+    <string>$(PRODUCT_NAME)</string>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+
+    <!-- Orientation -->
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+
+    <!-- SwiftUI App lifecycle does not need a main storyboard -->
+    <!-- Do not add UIMainStoryboardFile -->
+
+    <!-- Privacy usage descriptions (adjust text as you like) -->
+    <key>NSCameraUsageDescription</key>
+    <string>MacroLens needs camera access to scan and identify food items for nutrition tracking.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>MacroLens needs photo library access to select food images for logging.</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>MacroLens needs permission to save progress photos to your photo library.</string>
+    <key>NSFaceIDUsageDescription</key>
+    <string>MacroLens uses Face ID to secure your account and nutrition data.</string>
+    <key>NSHealthShareUsageDescription</key>
+    <string>MacroLens reads your activity data to provide personalized calorie recommendations.</string>
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>MacroLens saves nutrition data to Apple Health.</string>
+
+    <!-- App Transport Security (adjust if you need non-HTTPS in development) -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <false/>
+    </dict>
 </dict>
 </plist>

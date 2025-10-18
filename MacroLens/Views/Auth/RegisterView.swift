@@ -9,7 +9,7 @@ import SwiftUI
 
 struct RegisterView: View {
     
-    @Environment(\.dismiss) private var dismiss
+    @SwiftUI.Environment(\.dismiss) private var dismiss
     @EnvironmentObject var viewModel: AuthViewModel
     
     var body: some View {

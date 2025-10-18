@@ -7,11 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		172BF00A2EA2048600C4148F /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 172BF0092EA2048600C4148F /* Alamofire */; };
-		172BF00C2EA2048600C4148F /* AlamofireDynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 172BF00B2EA2048600C4148F /* AlamofireDynamic */; };
-		172BF00D2EA2048600C4148F /* AlamofireDynamic in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 172BF00B2EA2048600C4148F /* AlamofireDynamic */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		172BF00F2EA2048600C4148F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 172BF00E2EA2048600C4148F /* SDWebImageSwiftUI */; };
-		172BF0112EA2048600C4148F /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 172BF0102EA2048600C4148F /* KeychainAccess */; };
+		17EBF54E2EA26A8E00A65832 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 17EBF54D2EA26A8E00A65832 /* KeychainAccess */; };
+		17EBF5512EA26BCE00A65832 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 17EBF5502EA26BCE00A65832 /* SDWebImageSwiftUI */; };
+		17FDA0BB2EA2733900F07062 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 17FDA0BA2EA2733900F07062 /* Alamofire */; };
+		17FDA0C02EA273C100F07062 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 17FDA0BF2EA273C100F07062 /* Alamofire */; };
+		17FDA0C22EA273C100F07062 /* AlamofireDynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 17FDA0C12EA273C100F07062 /* AlamofireDynamic */; };
+		17FDA0C32EA273C100F07062 /* AlamofireDynamic in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 17FDA0C12EA273C100F07062 /* AlamofireDynamic */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		17FDA0C52EA273C100F07062 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 17FDA0C42EA273C100F07062 /* KeychainAccess */; };
+		17FDA0C72EA273C100F07062 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 17FDA0C62EA273C100F07062 /* SDWebImageSwiftUI */; };
+		17FDA0CA2EA273CA00F07062 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 17FDA0C92EA273CA00F07062 /* Alamofire */; };
+		17FDA0CC2EA273CA00F07062 /* AlamofireDynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 17FDA0CB2EA273CA00F07062 /* AlamofireDynamic */; };
+		17FDA0CD2EA273CA00F07062 /* AlamofireDynamic in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 17FDA0CB2EA273CA00F07062 /* AlamofireDynamic */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		17FDA0CF2EA273CA00F07062 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 17FDA0CE2EA273CA00F07062 /* KeychainAccess */; };
+		17FDA0D12EA273CA00F07062 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 17FDA0D02EA273CA00F07062 /* SDWebImageSwiftUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,7 +56,28 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				172BF00D2EA2048600C4148F /* AlamofireDynamic in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17FDA0C82EA273C200F07062 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				17FDA0C32EA273C100F07062 /* AlamofireDynamic in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17FDA0D22EA273CA00F07062 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				17FDA0CD2EA273CA00F07062 /* AlamofireDynamic in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -62,33 +91,21 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		17B944582E9F5C1F0067A319 /* Exceptions for "MacroLens" folder in "MacroLens" target */ = {
+		17FDA14A2EA37F2600F07062 /* Exceptions for "MacroLens" folder in "MacroLens" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				Views/Auth/LoginView.swift,
-				Views/Auth/RegisterView.swift,
+				MacroLens.xcdatamodeld,
 			);
 			target = 17B944262E9F5B3B0067A319 /* MacroLens */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		17A2D44E2EA11BAD000554BE /* Exceptions for "MacroLens" folder in "Copy Bundle Resources" phase from "MacroLens" target */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = 17B944252E9F5B3B0067A319 /* Resources */;
-			membershipExceptions = (
-				Views/Auth/LoginView.swift,
-			);
-		};
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		17B944292E9F5B3B0067A319 /* MacroLens */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				17B944582E9F5C1F0067A319 /* Exceptions for "MacroLens" folder in "MacroLens" target */,
-				17A2D44E2EA11BAD000554BE /* Exceptions for "MacroLens" folder in "Copy Bundle Resources" phase from "MacroLens" target */,
+				17FDA14A2EA37F2600F07062 /* Exceptions for "MacroLens" folder in "MacroLens" target */,
 			);
 			path = MacroLens;
 			sourceTree = "<group>";
@@ -110,10 +127,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				172BF0112EA2048600C4148F /* KeychainAccess in Frameworks */,
-				172BF00F2EA2048600C4148F /* SDWebImageSwiftUI in Frameworks */,
-				172BF00A2EA2048600C4148F /* Alamofire in Frameworks */,
-				172BF00C2EA2048600C4148F /* AlamofireDynamic in Frameworks */,
+				17FDA0BB2EA2733900F07062 /* Alamofire in Frameworks */,
+				17EBF5512EA26BCE00A65832 /* SDWebImageSwiftUI in Frameworks */,
+				17EBF54E2EA26A8E00A65832 /* KeychainAccess in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -121,6 +137,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				17FDA0C72EA273C100F07062 /* SDWebImageSwiftUI in Frameworks */,
+				17FDA0C02EA273C100F07062 /* Alamofire in Frameworks */,
+				17FDA0C22EA273C100F07062 /* AlamofireDynamic in Frameworks */,
+				17FDA0C52EA273C100F07062 /* KeychainAccess in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -128,6 +148,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				17FDA0D12EA273CA00F07062 /* SDWebImageSwiftUI in Frameworks */,
+				17FDA0CA2EA273CA00F07062 /* Alamofire in Frameworks */,
+				17FDA0CC2EA273CA00F07062 /* AlamofireDynamic in Frameworks */,
+				17FDA0CF2EA273CA00F07062 /* KeychainAccess in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -169,11 +193,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 17B9444D2E9F5B3E0067A319 /* Build configuration list for PBXNativeTarget "MacroLens" */;
 			buildPhases = (
-				17B944232E9F5B3B0067A319 /* Sources */,
 				17B944252E9F5B3B0067A319 /* Resources */,
 				17A2D4412EA11B06000554BE /* Embed Frameworks */,
 				1753C64F2EA14C82001EC57A /* Frameworks */,
 				1753C6562EA14CC9001EC57A /* Embed PlugIns */,
+				17FDA14B2EA381D600F07062 /* Sources */,
 			);
 			buildRules = (
 			);
@@ -184,10 +208,9 @@
 			);
 			name = MacroLens;
 			packageProductDependencies = (
-				172BF0092EA2048600C4148F /* Alamofire */,
-				172BF00B2EA2048600C4148F /* AlamofireDynamic */,
-				172BF00E2EA2048600C4148F /* SDWebImageSwiftUI */,
-				172BF0102EA2048600C4148F /* KeychainAccess */,
+				17EBF54D2EA26A8E00A65832 /* KeychainAccess */,
+				17EBF5502EA26BCE00A65832 /* SDWebImageSwiftUI */,
+				17FDA0BA2EA2733900F07062 /* Alamofire */,
 			);
 			productName = MacroLens;
 			productReference = 17B944272E9F5B3B0067A319 /* MacroLens.app */;
@@ -200,6 +223,7 @@
 				17B944352E9F5B3E0067A319 /* Sources */,
 				17B944362E9F5B3E0067A319 /* Frameworks */,
 				17B944372E9F5B3E0067A319 /* Resources */,
+				17FDA0C82EA273C200F07062 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -211,6 +235,10 @@
 			);
 			name = MacroLensTests;
 			packageProductDependencies = (
+				17FDA0BF2EA273C100F07062 /* Alamofire */,
+				17FDA0C12EA273C100F07062 /* AlamofireDynamic */,
+				17FDA0C42EA273C100F07062 /* KeychainAccess */,
+				17FDA0C62EA273C100F07062 /* SDWebImageSwiftUI */,
 			);
 			productName = MacroLensTests;
 			productReference = 17B944392E9F5B3E0067A319 /* MacroLensTests.xctest */;
@@ -223,6 +251,7 @@
 				17B9443F2E9F5B3E0067A319 /* Sources */,
 				17B944402E9F5B3E0067A319 /* Frameworks */,
 				17B944412E9F5B3E0067A319 /* Resources */,
+				17FDA0D22EA273CA00F07062 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -234,6 +263,10 @@
 			);
 			name = MacroLensUITests;
 			packageProductDependencies = (
+				17FDA0C92EA273CA00F07062 /* Alamofire */,
+				17FDA0CB2EA273CA00F07062 /* AlamofireDynamic */,
+				17FDA0CE2EA273CA00F07062 /* KeychainAccess */,
+				17FDA0D02EA273CA00F07062 /* SDWebImageSwiftUI */,
 			);
 			productName = MacroLensUITests;
 			productReference = 17B944432E9F5B3E0067A319 /* MacroLensUITests.xctest */;
@@ -272,9 +305,9 @@
 			mainGroup = 17B9441E2E9F5B3B0067A319;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				172BF0062EA2045100C4148F /* XCRemoteSwiftPackageReference "Alamofire" */,
-				172BF0072EA2045F00C4148F /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
-				172BF0082EA2046D00C4148F /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+				17EBF5462EA26A5500A65832 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				17EBF54C2EA26A8500A65832 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+				17EBF54F2EA26BC000A65832 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 17B944282E9F5B3B0067A319 /* Products */;
@@ -313,13 +346,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		17B944232E9F5B3B0067A319 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		17B944352E9F5B3E0067A319 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -328,6 +354,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		17B9443F2E9F5B3E0067A319 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17FDA14B2EA381D600F07062 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -481,8 +514,9 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 27K3TKMZV5;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = MacroLens/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MacroLens;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_NSCameraUsageDescription = "MacroLens needs camera access to scan and identify food for nutrition tracking.\n";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "MacroLens reads your activity data to provide personalized calorie recommendations.";
@@ -521,8 +555,9 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 27K3TKMZV5;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = MacroLens/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MacroLens;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_NSCameraUsageDescription = "MacroLens needs camera access to scan and identify food for nutrition tracking.\n";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "MacroLens reads your activity data to provide personalized calorie recommendations.";
@@ -675,7 +710,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		172BF0062EA2045100C4148F /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+		17EBF5462EA26A5500A65832 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
 			requirement = {
@@ -683,15 +718,7 @@
 				minimumVersion = 5.10.2;
 			};
 		};
-		172BF0072EA2045F00C4148F /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.1.3;
-			};
-		};
-		172BF0082EA2046D00C4148F /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+		17EBF54C2EA26A8500A65832 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess.git";
 			requirement = {
@@ -699,28 +726,71 @@
 				kind = branch;
 			};
 		};
+		17EBF54F2EA26BC000A65832 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.1.3;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		172BF0092EA2048600C4148F /* Alamofire */ = {
+		17EBF54D2EA26A8E00A65832 /* KeychainAccess */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 172BF0062EA2045100C4148F /* XCRemoteSwiftPackageReference "Alamofire" */;
-			productName = Alamofire;
+			package = 17EBF54C2EA26A8500A65832 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
 		};
-		172BF00B2EA2048600C4148F /* AlamofireDynamic */ = {
+		17EBF5502EA26BCE00A65832 /* SDWebImageSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 172BF0062EA2045100C4148F /* XCRemoteSwiftPackageReference "Alamofire" */;
-			productName = AlamofireDynamic;
-		};
-		172BF00E2EA2048600C4148F /* SDWebImageSwiftUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 172BF0072EA2045F00C4148F /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
+			package = 17EBF54F2EA26BC000A65832 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
 			productName = SDWebImageSwiftUI;
 		};
-		172BF0102EA2048600C4148F /* KeychainAccess */ = {
+		17FDA0BA2EA2733900F07062 /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 172BF0082EA2046D00C4148F /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			package = 17EBF5462EA26A5500A65832 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+		17FDA0BF2EA273C100F07062 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 17EBF5462EA26A5500A65832 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+		17FDA0C12EA273C100F07062 /* AlamofireDynamic */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 17EBF5462EA26A5500A65832 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = AlamofireDynamic;
+		};
+		17FDA0C42EA273C100F07062 /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 17EBF54C2EA26A8500A65832 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
 			productName = KeychainAccess;
+		};
+		17FDA0C62EA273C100F07062 /* SDWebImageSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 17EBF54F2EA26BC000A65832 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
+			productName = SDWebImageSwiftUI;
+		};
+		17FDA0C92EA273CA00F07062 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 17EBF5462EA26A5500A65832 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+		17FDA0CB2EA273CA00F07062 /* AlamofireDynamic */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 17EBF5462EA26A5500A65832 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = AlamofireDynamic;
+		};
+		17FDA0CE2EA273CA00F07062 /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 17EBF54C2EA26A8500A65832 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
+		};
+		17FDA0D02EA273CA00F07062 /* SDWebImageSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 17EBF54F2EA26BC000A65832 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
+			productName = SDWebImageSwiftUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
