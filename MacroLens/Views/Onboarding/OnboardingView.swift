@@ -243,42 +243,69 @@ struct OnboardingPage2: View {
 
 
 
-// MARK: - Page 3
 struct OnboardingPage3: View {
     var body: some View {
         ZStack {
-            Color.backgroundSecondary
-                .edgesIgnoringSafeArea(.all)
-            
-            VStack(spacing: 0) {
-                Circle()
-                    .fill(Color.secondaryGradient)
-                    .frame(width: 300, height: 300)
-                    .overlay(
-                        Image(systemName: "fork.knife")
-                            .font(.system(size: 100))
-                            .foregroundColor(.white)
+            // Background gradient with corrected SVG path
+            GeometryReader { geometry in
+                Path { path in
+                    let width = geometry.size.width
+                    let height = geometry.size.height
+                    let scale = width / 375
+                    
+                    // Start at bottom-left
+                    path.move(to: CGPoint(x: 0, y: 208.102 * scale))
+                    
+                    // First curve
+                    path.addCurve(to: CGPoint(x: 45.1 * scale, y: 293.939 * scale),
+                                control1: CGPoint(x: 0 * scale, y: 208.102 * scale),
+                                control2: CGPoint(x: 22.4 * scale, y: 211.641 * scale))
+                    
+                    // Second curve
+                    path.addCurve(to: CGPoint(x: 212.967 * scale, y: 437 * scale),
+                                control1: CGPoint(x: 67.8 * scale, y: 376.236 * scale),
+                                control2: CGPoint(x: 130.8 * scale, y: 437 * scale))
+                    
+                    // Third curve
+                    path.addCurve(to: CGPoint(x: 375 * scale, y: 248.065 * scale),
+                                control1: CGPoint(x: 295.133 * scale, y: 437 * scale),
+                                control2: CGPoint(x: 375 * scale, y: 322.517 * scale))
+                    
+                    // Connect to top and close
+                    path.addLine(to: CGPoint(x: 375 * scale, y: -2 * scale))
+                    path.addLine(to: CGPoint(x: 0, y: -2 * scale))
+                    path.closeSubpath()
+                }
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [Color(hex: "#007B83"), Color(hex: "#00BFA6")]),
+                        startPoint: UnitPoint(x: 1, y: 1),
+                        endPoint: UnitPoint(x: -0.335, y: 0.924)
                     )
-                    .padding(.top, 120)
-                
+                )
+            }
+            .edgesIgnoringSafeArea(.top)
+            
+            Image("OnboardingIllustration3")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 308, height: 351)
+                .position(x: UIScreen.main.bounds.width / 2 + 15 , y: 238)
+            
+            VStack(alignment: .leading, spacing: 16) {
                 Spacer()
-                    .frame(height: 40)
                 
-                Text("Eat Well")
-                    .font(.h2Bold)
-                    .foregroundColor(.blackPrimary)
-                    .multilineTextAlignment(.center)
+                Text("Get Burn")
+                    .h2Bold(color: .blackPrimary)
+                    .padding(.horizontal, 40)
+                    .padding(.bottom, 8)
+                
+                Text("Let’s keep burning, to achive yours goals, it hurts only temporarily, if you give up now you will be in pain forever")
+                    .mediumTextRegular(color: .gray1)
                     .padding(.horizontal, 40)
                 
-                Text("Let's start a healthy lifestyle with us. We can determine your diet every day. Healthy eating is fun")
-                    .font(.mediumTextRegular)
-                    .foregroundColor(.gray1)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(6)
-                    .padding(.horizontal, 40)
-                    .padding(.top, 16)
-                
                 Spacer()
+                    .frame(height: 180)
             }
         }
     }
