@@ -2,7 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <!-- Core bundle identity -->
     <key>CFBundleIdentifier</key>
     <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
     <key>CFBundleName</key>
@@ -15,17 +14,12 @@
     <string>1.0</string>
     <key>CFBundleVersion</key>
     <string>1</string>
-
-    <!-- Orientation -->
+    
     <key>UISupportedInterfaceOrientations</key>
     <array>
         <string>UIInterfaceOrientationPortrait</string>
     </array>
-
-    <!-- SwiftUI App lifecycle does not need a main storyboard -->
-    <!-- Do not add UIMainStoryboardFile -->
-
-    <!-- Privacy usage descriptions (adjust text as you like) -->
+    
     <key>NSCameraUsageDescription</key>
     <string>MacroLens needs camera access to scan and identify food items for nutrition tracking.</string>
     <key>NSPhotoLibraryUsageDescription</key>
@@ -38,12 +32,31 @@
     <string>MacroLens reads your activity data to provide personalized calorie recommendations.</string>
     <key>NSHealthUpdateUsageDescription</key>
     <string>MacroLens saves nutrition data to Apple Health.</string>
-
-    <!-- App Transport Security (adjust if you need non-HTTPS in development) -->
+    
     <key>NSAppTransportSecurity</key>
     <dict>
         <key>NSAllowsArbitraryLoads</key>
         <false/>
     </dict>
+    
+    <key>UIAppFonts</key>
+    <array>
+        <string>Poppins-Regular.ttf</string>
+        <string>Poppins-Medium.ttf</string>
+        <string>Poppins-SemiBold.ttf</string>
+        <string>Poppins-Bold.ttf</string>
+        <string>Poppins-Light.ttf</string>
+        <string>Poppins-Black.ttf</string>
+        <string>Poppins-ExtraBold.ttf</string>
+        <string>Poppins-ExtraLight.ttf</string>
+        <string>Poppins-Thin.ttf</string>
+    </array>
+    
+    <key>UILaunchScreen</key>
+    <dict>
+        <key>UIImageName</key>
+        <string></string>
+    </dict>
+
 </dict>
 </plist>

@@ -2,219 +2,184 @@
 //  Typography.swift
 //  MacroLens
 //
-//  Typography system and text styles
+//  Path: MacroLens/Resources/Typography.swift
 //
 
 import SwiftUI
 
-// MARK: - Font Extensions
 extension Font {
     
-    // MARK: - Display Styles (Large headers)
+    // MARK: - Title / H1 (26px)
+    static let h1Bold = Font.custom("Poppins-Bold", size: 26)
+    static let h1SemiBold = Font.custom("Poppins-SemiBold", size: 26)
+    static let h1Medium = Font.custom("Poppins-Medium", size: 26)
+    static let h1Regular = Font.custom("Poppins-Regular", size: 26)
     
-    /// Display Large - 34pt Bold
-    static let displayLarge = Font.system(size: 34, weight: .bold, design: .default)
+    // MARK: - Title / H2 (24px)
+    static let h2Bold = Font.custom("Poppins-Bold", size: 24)
+    static let h2SemiBold = Font.custom("Poppins-SemiBold", size: 24)
+    static let h2Medium = Font.custom("Poppins-Medium", size: 24)
+    static let h2Regular = Font.custom("Poppins-Regular", size: 24)
     
-    /// Display Medium - 28pt Bold
-    static let displayMedium = Font.system(size: 28, weight: .bold, design: .default)
+    // MARK: - Title / H3 (22px)
+    static let h3Bold = Font.custom("Poppins-Bold", size: 22)
+    static let h3SemiBold = Font.custom("Poppins-SemiBold", size: 22)
+    static let h3Medium = Font.custom("Poppins-Medium", size: 22)
+    static let h3Regular = Font.custom("Poppins-Regular", size: 22)
     
-    /// Display Small - 24pt Semibold
-    static let displaySmall = Font.system(size: 24, weight: .semibold, design: .default)
+    // MARK: - Title / H4 (20px)
+    static let h4Bold = Font.custom("Poppins-Bold", size: 20)
+    static let h4SemiBold = Font.custom("Poppins-SemiBold", size: 20)
+    static let h4Medium = Font.custom("Poppins-Medium", size: 20)
+    static let h4Regular = Font.custom("Poppins-Regular", size: 20)
     
-    // MARK: - Headline Styles
+    // MARK: - Text / Subtitle (18px)
+    static let subtitleBold = Font.custom("Poppins-Bold", size: 18)
+    static let subtitleSemiBold = Font.custom("Poppins-SemiBold", size: 18)
+    static let subtitleMedium = Font.custom("Poppins-Medium", size: 18)
+    static let subtitleRegular = Font.custom("Poppins-Regular", size: 18)
     
-    /// Headline Large - 22pt Semibold
-    static let headlineLarge = Font.system(size: 22, weight: .semibold, design: .default)
+    // MARK: - Text / Large Text (16px)
+    static let largeTextBold = Font.custom("Poppins-Bold", size: 16)
+    static let largeTextSemiBold = Font.custom("Poppins-SemiBold", size: 16)
+    static let largeTextMedium = Font.custom("Poppins-Medium", size: 16)
+    static let largeTextRegular = Font.custom("Poppins-Regular", size: 16)
     
-    /// Headline Medium - 20pt Semibold
-    static let headlineMedium = Font.system(size: 20, weight: .semibold, design: .default)
+    // MARK: - Text / Medium Text (14px)
+    static let mediumTextBold = Font.custom("Poppins-Bold", size: 14)
+    static let mediumTextSemiBold = Font.custom("Poppins-SemiBold", size: 14)
+    static let mediumTextMedium = Font.custom("Poppins-Medium", size: 14)
+    static let mediumTextRegular = Font.custom("Poppins-Regular", size: 14)
     
-    /// Headline Small - 18pt Semibold
-    static let headlineSmall = Font.system(size: 18, weight: .semibold, design: .default)
+    // MARK: - Text / Small Text (12px)
+    static let smallTextBold = Font.custom("Poppins-Bold", size: 12)
+    static let smallTextSemiBold = Font.custom("Poppins-SemiBold", size: 12)
+    static let smallTextMedium = Font.custom("Poppins-Medium", size: 12)
+    static let smallTextRegular = Font.custom("Poppins-Regular", size: 12)
     
-    // MARK: - Title Styles
+    // MARK: - Text / Caption (10px)
+    static let captionBold = Font.custom("Poppins-Bold", size: 10)
+    static let captionSemiBold = Font.custom("Poppins-SemiBold", size: 10)
+    static let captionMedium = Font.custom("Poppins-Medium", size: 10)
+    static let captionRegular = Font.custom("Poppins-Regular", size: 10)
     
-    /// Title Large - 20pt Medium
-    static let titleLarge = Font.system(size: 20, weight: .medium, design: .default)
+    // MARK: - Links (Medium weight)
+    static let linkSmall = Font.custom("Poppins-Medium", size: 10)  // Line height: 15
+    static let linkMedium = Font.custom("Poppins-Medium", size: 12) // Line height: 18
+    static let linkLarge = Font.custom("Poppins-Medium", size: 14)  // Line height: 21
     
-    /// Title Medium - 18pt Medium
-    static let titleMedium = Font.system(size: 18, weight: .medium, design: .default)
-    
-    /// Title Small - 16pt Medium
-    static let titleSmall = Font.system(size: 16, weight: .medium, design: .default)
-    
-    // MARK: - Body Styles
-    
-    /// Body Large - 17pt Regular
-    static let bodyLarge = Font.system(size: 17, weight: .regular, design: .default)
-    
-    /// Body Medium - 15pt Regular
-    static let bodyMedium = Font.system(size: 15, weight: .regular, design: .default)
-    
-    /// Body Small - 13pt Regular
-    static let bodySmall = Font.system(size: 13, weight: .regular, design: .default)
-    
-    // MARK: - Label Styles
-    
-    /// Label Large - 15pt Medium
-    static let labelLarge = Font.system(size: 15, weight: .medium, design: .default)
-    
-    /// Label Medium - 13pt Medium
-    static let labelMedium = Font.system(size: 13, weight: .medium, design: .default)
-    
-    /// Label Small - 11pt Medium
-    static let labelSmall = Font.system(size: 11, weight: .medium, design: .default)
-    
-    // MARK: - Caption Styles
-    
-    /// Caption Large - 13pt Regular
-    static let captionLarge = Font.system(size: 13, weight: .regular, design: .default)
-    
-    /// Caption Medium - 12pt Regular
-    static let captionMedium = Font.system(size: 12, weight: .regular, design: .default)
-    
-    /// Caption Small - 11pt Regular
-    static let captionSmall = Font.system(size: 11, weight: .regular, design: .default)
-    
-    // MARK: - Special Styles
-    
-    /// Number Display - Rounded design for metrics
-    static let numberDisplay = Font.system(size: 32, weight: .bold, design: .rounded)
-    
-    /// Number Large - For macro values
-    static let numberLarge = Font.system(size: 24, weight: .semibold, design: .rounded)
-    
-    /// Number Medium - For secondary metrics
-    static let numberMedium = Font.system(size: 18, weight: .medium, design: .rounded)
-    
-    /// Number Small - For small numeric labels
-    static let numberSmall = Font.system(size: 14, weight: .medium, design: .rounded)
-    
-    /// Button Text - 17pt Semibold
-    static let buttonText = Font.system(size: 17, weight: .semibold, design: .default)
-    
-    /// Button Small - 15pt Semibold
-    static let buttonSmall = Font.system(size: 15, weight: .semibold, design: .default)
+    // MARK: - Legacy Aliases (for backward compatibility)
+    static let displayLarge = h1Bold
+    static let displayMedium = h2Bold
+    static let displaySmall = h3Bold
+    static let headlineLarge = h3SemiBold
+    static let headlineMedium = h4SemiBold
+    static let headlineSmall = subtitleSemiBold
+    static let titleLarge = h4Medium
+    static let titleMedium = subtitleMedium
+    static let titleSmall = largeTextMedium
+    static let bodyLarge = largeTextRegular
+    static let bodyMedium = mediumTextRegular
+    static let bodySmall = smallTextRegular
+    static let labelLarge = mediumTextMedium
+    static let labelMedium = smallTextMedium
+    static let labelSmall = captionMedium
+    static let captionLarge = smallTextRegular
+    static let captionMediumAlias = captionRegular
+    static let captionSmall = captionRegular
+    static let buttonText = largeTextSemiBold
+    static let buttonSmall = mediumTextSemiBold
 }
 
 // MARK: - Text Style Modifiers
 extension View {
     
-    /// Apply display large style
-    func displayLarge(color: Color = .textPrimary) -> some View {
-        self
-            .font(.displayLarge)
-            .foregroundColor(color)
+    // H1
+    func h1Bold(color: Color = .textPrimary) -> some View {
+        self.font(.h1Bold).foregroundColor(color).lineSpacing(39)
+    }
+    func h1SemiBold(color: Color = .textPrimary) -> some View {
+        self.font(.h1SemiBold).foregroundColor(color).lineSpacing(39)
+    }
+    func h1Medium(color: Color = .textPrimary) -> some View {
+        self.font(.h1Medium).foregroundColor(color).lineSpacing(39)
+    }
+    func h1Regular(color: Color = .textPrimary) -> some View {
+        self.font(.h1Regular).foregroundColor(color).lineSpacing(39)
     }
     
-    /// Apply display medium style
-    func displayMedium(color: Color = .textPrimary) -> some View {
-        self
-            .font(.displayMedium)
-            .foregroundColor(color)
+    // H2
+    func h2Bold(color: Color = .textPrimary) -> some View {
+        self.font(.h2Bold).foregroundColor(color).lineSpacing(36)
+    }
+    func h2SemiBold(color: Color = .textPrimary) -> some View {
+        self.font(.h2SemiBold).foregroundColor(color).lineSpacing(36)
     }
     
-    /// Apply headline large style
-    func headlineLarge(color: Color = .textPrimary) -> some View {
-        self
-            .font(.headlineLarge)
-            .foregroundColor(color)
+    // H3
+    func h3Bold(color: Color = .textPrimary) -> some View {
+        self.font(.h3Bold).foregroundColor(color).lineSpacing(33)
+    }
+    func h3SemiBold(color: Color = .textPrimary) -> some View {
+        self.font(.h3SemiBold).foregroundColor(color).lineSpacing(33)
     }
     
-    /// Apply headline medium style
-    func headlineMedium(color: Color = .textPrimary) -> some View {
-        self
-            .font(.headlineMedium)
-            .foregroundColor(color)
+    // H4
+    func h4Bold(color: Color = .textPrimary) -> some View {
+        self.font(.h4Bold).foregroundColor(color).lineSpacing(30)
+    }
+    func h4SemiBold(color: Color = .textPrimary) -> some View {
+        self.font(.h4SemiBold).foregroundColor(color).lineSpacing(30)
     }
     
-    /// Apply title large style
-    func titleLarge(color: Color = .textPrimary) -> some View {
-        self
-            .font(.titleLarge)
-            .foregroundColor(color)
+    // Subtitle
+    func subtitleBold(color: Color = .textPrimary) -> some View {
+        self.font(.subtitleBold).foregroundColor(color).lineSpacing(27)
+    }
+    func subtitleSemiBold(color: Color = .textPrimary) -> some View {
+        self.font(.subtitleSemiBold).foregroundColor(color).lineSpacing(27)
+    }
+    func subtitleRegular(color: Color = .textSecondary) -> some View {
+        self.font(.subtitleRegular).foregroundColor(color).lineSpacing(27)
     }
     
-    /// Apply body large style
-    func bodyLarge(color: Color = .textSecondary) -> some View {
-        self
-            .font(.bodyLarge)
-            .foregroundColor(color)
+    // Large Text
+    func largeTextBold(color: Color = .textPrimary) -> some View {
+        self.font(.largeTextBold).foregroundColor(color).lineSpacing(24)
+    }
+    func largeTextRegular(color: Color = .textSecondary) -> some View {
+        self.font(.largeTextRegular).foregroundColor(color).lineSpacing(24)
     }
     
-    /// Apply body medium style
-    func bodyMedium(color: Color = .textSecondary) -> some View {
-        self
-            .font(.bodyMedium)
-            .foregroundColor(color)
+    // Medium Text
+    func mediumTextBold(color: Color = .textPrimary) -> some View {
+        self.font(.mediumTextBold).foregroundColor(color).lineSpacing(21)
+    }
+    func mediumTextRegular(color: Color = .textSecondary) -> some View {
+        self.font(.mediumTextRegular).foregroundColor(color).lineSpacing(5)
     }
     
-    /// Apply label style
-    func labelMedium(color: Color = .textSecondary) -> some View {
-        self
-            .font(.labelMedium)
-            .foregroundColor(color)
+    // Small Text
+    func smallTextBold(color: Color = .textPrimary) -> some View {
+        self.font(.smallTextBold).foregroundColor(color).lineSpacing(18)
+    }
+    func smallTextRegular(color: Color = .textTertiary) -> some View {
+        self.font(.smallTextRegular).foregroundColor(color).lineSpacing(18)
     }
     
-    /// Apply caption style
-    func captionMedium(color: Color = .textTertiary) -> some View {
-        self
-            .font(.captionMedium)
-            .foregroundColor(color)
-    }
-}
-
-// MARK: - Text Line Limit and Truncation
-extension View {
-    
-    /// Apply consistent line limit with truncation
-    func limitedLines(_ count: Int = 2) -> some View {
-        self
-            .lineLimit(count)
-            .truncationMode(.tail)
+    // Caption
+    func captionRegular(color: Color = .textTertiary) -> some View {
+        self.font(.captionRegular).foregroundColor(color).lineSpacing(15)
     }
     
-    /// Single line with ellipsis
-    func singleLine() -> some View {
-        self
-            .lineLimit(1)
-            .truncationMode(.tail)
+    // Links
+    func linkSmall(color: Color = .primaryStart) -> some View {
+        self.font(.linkSmall).foregroundColor(color).lineSpacing(15)
     }
-}
-
-// MARK: - Letter Spacing
-extension View {
-    
-    /// Apply tight letter spacing for numbers
-    func numberSpacing() -> some View {
-        if #available(iOS 16.0, *) {
-            return AnyView(self.tracking(-0.5))
-        } else {
-            // Best-effort fallback: apply kerning for Text; otherwise no-op
-            return AnyView(self.modifier(KerningIfText(kerning: -0.5)))
-        }
+    func linkMedium(color: Color = .primaryStart) -> some View {
+        self.font(.linkMedium).foregroundColor(color).lineSpacing(18)
     }
-    
-    /// Apply loose letter spacing for headings
-    func headingSpacing() -> some View {
-        if #available(iOS 16.0, *) {
-            return AnyView(self.tracking(0.5))
-        } else {
-            // Best-effort fallback: apply kerning for Text; otherwise no-op
-            return AnyView(self.modifier(KerningIfText(kerning: 0.5)))
-        }
-    }
-}
-
-// MARK: - Fallback kerning for Text on older iOS
-private struct KerningIfText: ViewModifier {
-    let kerning: CGFloat
-    func body(content: Content) -> some View {
-        if #available(iOS 16.0, *) {
-            content.kerning(kerning)
-        } else {
-            // On older iOS, kerning modifier isn't available; return content unchanged.
-            content
-        }
+    func linkLarge(color: Color = .primaryStart) -> some View {
+        self.font(.linkLarge).foregroundColor(color).lineSpacing(21)
     }
 }
