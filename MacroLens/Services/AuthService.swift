@@ -34,41 +34,40 @@ class AuthService {
         firstName: String? = nil,
         lastName: String? = nil
     ) async throws -> AuthResponse {
+        let fullName = "\(firstName ?? "") \(lastName ?? "")".trimmingCharacters(in: .whitespaces)
+        
         let parameters: [String: Any] = [
             "email": email,
             "password": password,
-            "full_name": "\(firstName ?? "") \(lastName ?? "")".trimmingCharacters(in: .whitespaces)
+            "full_name": fullName.isEmpty ? email : fullName
         ]
         
-        // API returns nested response: { success: true, data: { user: {}, tokens: {} } }
-        let apiResponse: APIResponse<AuthDataWrapper> = try await networkManager.post(
+        // Backend returns: { success: true, data: { user: {...}, tokens: {...} } }
+        // APIResponse<AuthDataResponse> unwraps to AuthDataResponse
+        let authData: AuthDataResponse = try await networkManager.post(
             endpoint: Config.Endpoints.register,
             parameters: parameters
         )
         
-        guard apiResponse.success, let data = apiResponse.data else {
-            throw APIError.serverError(apiResponse.error?.message ?? "Registration failed")
-        }
-        
         // Store tokens
         try saveTokens(
-            accessToken: data.tokens.accessToken,
-            refreshToken: data.tokens.refreshToken
+            accessToken: authData.tokens.accessToken,
+            refreshToken: authData.tokens.refreshToken
         )
         
         // Store user info
-        try keychain.set(data.user.id, key: Config.StorageKeys.userId)
-        try keychain.set(data.user.email, key: Config.StorageKeys.userEmail)
+        try keychain.set(authData.user.id, key: Config.StorageKeys.userId)
+        try keychain.set(authData.user.email, key: Config.StorageKeys.userEmail)
         
-        Config.Logging.log("User registered successfully: \(data.user.email)", level: .info)
+        Config.Logging.log("User registered successfully: \(authData.user.email)", level: .info)
         
-        // Return simplified AuthResponse
+        // Convert to AuthResponse for ViewModel
         return AuthResponse(
-            user: data.user,
-            accessToken: data.tokens.accessToken,
-            refreshToken: data.tokens.refreshToken,
-            tokenType: data.tokens.tokenType,
-            expiresIn: data.tokens.expiresIn
+            user: authData.user,
+            accessToken: authData.tokens.accessToken,
+            refreshToken: authData.tokens.refreshToken,
+            tokenType: authData.tokens.tokenType,
+            expiresIn: authData.tokens.expiresIn
         )
     }
     
@@ -81,34 +80,29 @@ class AuthService {
             "password": password
         ]
         
-        // API returns nested response
-        let apiResponse: APIResponse<AuthDataWrapper> = try await networkManager.post(
+        let authData: AuthDataResponse = try await networkManager.post(
             endpoint: Config.Endpoints.login,
             parameters: parameters
         )
         
-        guard apiResponse.success, let data = apiResponse.data else {
-            throw APIError.unauthorized
-        }
-        
         // Store tokens
         try saveTokens(
-            accessToken: data.tokens.accessToken,
-            refreshToken: data.tokens.refreshToken
+            accessToken: authData.tokens.accessToken,
+            refreshToken: authData.tokens.refreshToken
         )
         
         // Store user info
-        try keychain.set(data.user.id, key: Config.StorageKeys.userId)
-        try keychain.set(data.user.email, key: Config.StorageKeys.userEmail)
+        try keychain.set(authData.user.id, key: Config.StorageKeys.userId)
+        try keychain.set(authData.user.email, key: Config.StorageKeys.userEmail)
         
-        Config.Logging.log("User logged in: \(data.user.email)", level: .info)
+        Config.Logging.log("User logged in: \(authData.user.email)", level: .info)
         
         return AuthResponse(
-            user: data.user,
-            accessToken: data.tokens.accessToken,
-            refreshToken: data.tokens.refreshToken,
-            tokenType: data.tokens.tokenType,
-            expiresIn: data.tokens.expiresIn
+            user: authData.user,
+            accessToken: authData.tokens.accessToken,
+            refreshToken: authData.tokens.refreshToken,
+            tokenType: authData.tokens.tokenType,
+            expiresIn: authData.tokens.expiresIn
         )
     }
     
@@ -116,24 +110,21 @@ class AuthService {
     
     /// Get current user profile
     func getCurrentUser() async throws -> User {
-        let apiResponse: APIResponse<UserDataWrapper> = try await networkManager.get(
+        // Backend returns: { success: true, data: { user: {...} } }
+        let userData: UserDataResponse = try await networkManager.get(
             endpoint: Config.Endpoints.currentUser
         )
         
-        guard apiResponse.success, let data = apiResponse.data else {
-            throw APIError.unauthorized
-        }
-        
-        return data.user
+        return userData.user
     }
     
     // MARK: - Logout
     
     /// Logout user
     func logout() async throws {
-        // Call logout endpoint (optional, API may not have this)
+        // Call logout endpoint
         do {
-            let _: APIResponse<EmptyResponse> = try await networkManager.post(
+            let _: EmptyDataResponse = try await networkManager.post(
                 endpoint: Config.Endpoints.logout,
                 parameters: [:]
             )
@@ -160,28 +151,37 @@ class AuthService {
             "refresh_token": refreshToken
         ]
         
-        let apiResponse: APIResponse<TokenDataWrapper> = try await networkManager.post(
+        // Backend returns: { success: true, data: { tokens: {...} } }
+        let tokenData: TokenDataResponse = try await networkManager.post(
             endpoint: Config.Endpoints.refreshToken,
             parameters: parameters
         )
         
-        guard apiResponse.success, let data = apiResponse.data else {
-            throw APIError.unauthorized
-        }
-        
         // Store new tokens
         try saveTokens(
-            accessToken: data.tokens.accessToken,
-            refreshToken: data.tokens.refreshToken
+            accessToken: tokenData.tokens.accessToken,
+            refreshToken: tokenData.tokens.refreshToken
         )
         
-        return data.tokens
+        Config.Logging.log("Access token refreshed", level: .info)
+        
+        return TokenResponse(
+            accessToken: tokenData.tokens.accessToken,
+            refreshToken: tokenData.tokens.refreshToken,
+            tokenType: tokenData.tokens.tokenType,
+            expiresIn: tokenData.tokens.expiresIn
+        )
     }
     
     /// Save tokens to keychain
     private func saveTokens(accessToken: String, refreshToken: String) throws {
         try keychain.set(accessToken, key: Config.StorageKeys.accessToken)
         try keychain.set(refreshToken, key: Config.StorageKeys.refreshToken)
+        
+        // Update APIClient tokens
+        APIClient.shared.accessToken = accessToken
+        APIClient.shared.refreshToken = refreshToken
+        
         Config.Logging.log("Tokens saved to keychain", level: .debug)
     }
     
@@ -196,6 +196,10 @@ class AuthService {
         try? keychain.remove(Config.StorageKeys.refreshToken)
         try? keychain.remove(Config.StorageKeys.userId)
         try? keychain.remove(Config.StorageKeys.userEmail)
+        
+        // Clear APIClient tokens
+        APIClient.shared.clearTokens()
+        
         Config.Logging.log("Auth data cleared", level: .info)
     }
     
@@ -207,39 +211,28 @@ class AuthService {
             "email": request.email
         ]
         
-        let _: APIResponse<EmptyResponse> = try await networkManager.post(
+        let _: EmptyDataResponse = try await networkManager.post(
             endpoint: Config.Endpoints.resetPassword,
             parameters: parameters
         )
+        
+        Config.Logging.log("Password reset requested for: \(request.email)", level: .info)
+    }
+    
+    /// Verify email with token
+    func verifyEmail(_ request: VerifyEmailRequest) async throws {
+        let parameters: [String: Any] = [
+            "token": request.token
+        ]
+        
+        let _: EmptyDataResponse = try await networkManager.post(
+            endpoint: Config.Endpoints.verifyEmail,
+            parameters: parameters
+        )
+        
+        Config.Logging.log("Email verified successfully", level: .info)
     }
 }
 
-// MARK: - Helper Response Wrappers
-// These match the backend API structure: { success: true, data: { user: {}, tokens: {} } }
-
-struct APIResponse<T: Codable>: Codable {
-    let success: Bool
-    let message: String?
-    let data: T?
-    let error: APIErrorResponse?
-}
-
-struct APIErrorResponse: Codable {
-    let message: String
-    let code: String?
-}
-
-struct AuthDataWrapper: Codable {
-    let user: User
-    let tokens: TokenResponse
-}
-
-struct UserDataWrapper: Codable {
-    let user: User
-}
-
-struct TokenDataWrapper: Codable {
-    let tokens: TokenResponse
-}
-
-struct EmptyResponse: Codable {}
+// MARK: - Empty Response Helper
+struct EmptyDataResponse: Codable, Sendable {}

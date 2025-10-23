@@ -14,7 +14,7 @@ struct LoginRequest: Codable, Sendable {
 }
 
 // MARK: - Register Request
-struct RegisterRequest: Codable,Sendable {
+struct RegisterRequest: Codable, Sendable {
     let email: String
     let password: String
     let firstName: String?
@@ -28,7 +28,8 @@ struct RegisterRequest: Codable,Sendable {
     }
 }
 
-// MARK: - Auth Response
+// MARK: - Auth Response (What iOS receives from backend)
+// Backend returns: { success: true, data: { user: {...}, tokens: {...} } }
 struct AuthResponse: Codable, Sendable {
     let user: User
     let accessToken: String
@@ -38,6 +39,27 @@ struct AuthResponse: Codable, Sendable {
     
     enum CodingKeys: String, CodingKey {
         case user
+        case accessToken = "access_token"
+        case refreshToken = "refresh_token"
+        case tokenType = "token_type"
+        case expiresIn = "expires_in"
+    }
+}
+
+// MARK: - Backend API Wrappers
+// These match the nested structure from backend: { user: {...}, tokens: {...} }
+struct AuthDataResponse: Codable, Sendable {
+    let user: User
+    let tokens: TokenData
+}
+
+struct TokenData: Codable, Sendable {
+    let accessToken: String
+    let refreshToken: String
+    let tokenType: String
+    let expiresIn: Int
+    
+    enum CodingKeys: String, CodingKey {
         case accessToken = "access_token"
         case refreshToken = "refresh_token"
         case tokenType = "token_type"
@@ -70,7 +92,7 @@ struct TokenResponse: Codable, Sendable {
 }
 
 // MARK: - Verify Email Request
-struct VerifyEmailRequest: Codable,Sendable {
+struct VerifyEmailRequest: Codable, Sendable {
     let token: String
 }
 
@@ -99,4 +121,14 @@ struct ChangePasswordRequest: Codable, Sendable {
         case currentPassword = "current_password"
         case newPassword = "new_password"
     }
+}
+
+// MARK: - User Wrapper (for /me endpoint)
+struct UserDataResponse: Codable, Sendable {
+    let user: User
+}
+
+// MARK: - Token Wrapper (for refresh endpoint)
+struct TokenDataResponse: Codable, Sendable {
+    let tokens: TokenData
 }
