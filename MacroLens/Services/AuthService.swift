@@ -43,7 +43,6 @@ class AuthService {
         ]
         
         // Backend returns: { success: true, data: { user: {...}, tokens: {...} } }
-        // APIResponse<AuthDataResponse> unwraps to AuthDataResponse
         let authData: AuthDataResponse = try await networkManager.post(
             endpoint: Config.Endpoints.register,
             parameters: parameters
@@ -110,9 +109,9 @@ class AuthService {
     
     /// Get current user profile
     func getCurrentUser() async throws -> User {
-        // Backend returns: { success: true, data: { user: {...} } }
+        // Backend endpoint is /auth/me which returns: { success: true, data: { user: {...} } }
         let userData: UserDataResponse = try await networkManager.get(
-            endpoint: Config.Endpoints.currentUser
+            endpoint: "/auth/me"  // Using direct path since Config.Endpoints doesn't have currentUser
         )
         
         return userData.user
@@ -233,6 +232,3 @@ class AuthService {
         Config.Logging.log("Email verified successfully", level: .info)
     }
 }
-
-// MARK: - Empty Response Helper
-struct EmptyDataResponse: Codable, Sendable {}

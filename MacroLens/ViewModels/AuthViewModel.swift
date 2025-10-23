@@ -4,8 +4,6 @@
 //
 //  Path: MacroLens/ViewModels/AuthViewModel.swift
 //
-//  Unified authentication view model for login, registration, and password management
-//
 
 import SwiftUI
 import LocalAuthentication
@@ -277,11 +275,14 @@ class AuthViewModel: ObservableObject {
         if forgotPasswordEmail.isEmpty {
             forgotPasswordEmailError = "Email is required"
             isValid = false
-        } else if !ValidationHelper.validateEmail(forgotPasswordEmail).isValid {
-            forgotPasswordEmailError = "Please enter a valid email"
-            isValid = false
         } else {
-            forgotPasswordEmailError = nil
+            let emailResult = ValidationHelper.validateEmail(forgotPasswordEmail)
+            if !emailResult.isValid {
+                forgotPasswordEmailError = "Please enter a valid email"
+                isValid = false
+            } else {
+                forgotPasswordEmailError = nil
+            }
         }
         
         return isValid
@@ -296,8 +297,8 @@ class AuthViewModel: ObservableObject {
         isLoading = true
         
         do {
-            // For requesting a reset link, call the email-based endpoint:
-            try await authService.requestPasswordReset(email: forgotPasswordEmail)
+            let request = ResetPasswordRequest(email: forgotPasswordEmail)
+            try await authService.resetPassword(request)
             
             successMessage = "Password reset link sent to your email"
             clearForgotPasswordForm()
@@ -346,6 +347,10 @@ class AuthViewModel: ObservableObject {
             switch apiError {
             case .unauthorized:
                 errorMessage = "Invalid email or password"
+            case .forbidden:
+                errorMessage = "You don't have permission to perform this action"
+            case .notFound:
+                errorMessage = "Requested resource not found"
             case .validationError(let message):
                 errorMessage = message
             case .networkError:
