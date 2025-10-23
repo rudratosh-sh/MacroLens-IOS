@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import LocalAuthentication
 
 struct LoginView: View {
     
@@ -116,7 +117,7 @@ struct LoginView: View {
                             .padding(.top, Constants.UI.spacing8)
                             
                             // Biometric Login
-                            if viewModel.biometricType() != .none {
+                            if biometricTypeAvailable != .none {
                                 MLButton.outline(
                                     "Login with \(biometricName)",
                                     icon: biometricIcon,
@@ -184,8 +185,12 @@ struct LoginView: View {
     
     // MARK: - Biometric Helpers
     
+    private var biometricTypeAvailable: LABiometryType {
+        viewModel.biometricType()
+    }
+    
     private var biometricIcon: String {
-        switch viewModel.biometricType() {
+        switch biometricTypeAvailable {
         case .faceID: return "faceid"
         case .touchID: return "touchid"
         default: return "lock.fill"
@@ -193,7 +198,7 @@ struct LoginView: View {
     }
     
     private var biometricName: String {
-        switch viewModel.biometricType() {
+        switch biometricTypeAvailable {
         case .faceID: return "Face ID"
         case .touchID: return "Touch ID"
         default: return "Biometrics"
