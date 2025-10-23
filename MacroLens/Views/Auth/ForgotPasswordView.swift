@@ -9,14 +9,9 @@ import SwiftUI
 
 struct ForgotPasswordView: View {
     
-    @SwiftUI.Environment(\.dismiss) private var dismiss
-    @State private var email = ""
-    @State private var emailError: String?
-    @State private var isLoading = false
-    @State private var showSuccess = false
-    @State private var errorMessage: String?
-    
-    private let authService = AuthService.shared
+    @EnvironmentObject var viewModel: AuthViewModel
+    @Environment(\.dismiss) private var dismiss
+    @State private var showSuccessMessage = false
     
     var body: some View {
         NavigationView {
@@ -27,12 +22,18 @@ struct ForgotPasswordView: View {
                     VStack(spacing: Constants.UI.spacing32) {
                         
                         // Icon
-                        Image(systemName: "lock.rotation")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 60, height: 60)
-                            .foregroundStyle(Color.primaryGradient)
-                            .padding(.top, 60)
+                        ZStack {
+                            Circle()
+                                .fill(Color.primaryStart.opacity(0.1))
+                                .frame(width: 100, height: 100)
+                            
+                            Image(systemName: "lock.rotation")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 50, height: 50)
+                                .foregroundColor(.primaryStart)
+                        }
+                        .padding(.top, Constants.UI.spacing64)
                         
                         // Header
                         VStack(spacing: Constants.UI.spacing12) {
@@ -40,51 +41,78 @@ struct ForgotPasswordView: View {
                                 .font(.displayMedium)
                                 .foregroundColor(.textPrimary)
                             
-                            Text("Enter your email and we'll send you a reset link")
-                                .font(.bodyLarge)
+                            Text("Enter your email address and we'll send you a link to reset your password")
+                                .font(.bodyMedium)
                                 .foregroundColor(.textSecondary)
                                 .multilineTextAlignment(.center)
+                                .padding(.horizontal, Constants.UI.spacing32)
                         }
-                        .padding(.horizontal, Constants.UI.spacing24)
                         
-                        // Email Input
-                        VStack(spacing: Constants.UI.spacing16) {
+                        // Form
+                        VStack(spacing: Constants.UI.spacing20) {
+                            // Email Field
                             MLTextField.email(
-                                text: $email,
-                                errorMessage: emailError
+                                text: $viewModel.forgotPasswordEmail,
+                                errorMessage: viewModel.forgotPasswordEmailError
                             )
                             
                             // Error Message
-                            if let errorMessage = errorMessage {
+                            if let errorMessage = viewModel.errorMessage {
                                 HStack(spacing: Constants.UI.spacing8) {
                                     Image(systemName: "exclamationmark.triangle.fill")
                                     Text(errorMessage)
-                                        .font(.bodyMedium)
+                                        .font(.bodySmall)
                                 }
                                 .foregroundColor(.error)
+                                .padding()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color.error.opacity(0.1))
+                                .cornerRadius(Constants.UI.cornerRadiusMedium)
                             }
                             
                             // Success Message
-                            if showSuccess {
+                            if let successMessage = viewModel.successMessage {
                                 HStack(spacing: Constants.UI.spacing8) {
                                     Image(systemName: "checkmark.circle.fill")
-                                    Text("Reset link sent! Check your email.")
-                                        .font(.bodyMedium)
+                                    Text(successMessage)
+                                        .font(.bodySmall)
                                 }
-                                .foregroundColor(.success)
+                                .foregroundColor(.secondary)
+                                .padding()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color.secondary.opacity(0.1))
+                                .cornerRadius(Constants.UI.cornerRadiusMedium)
                             }
-                        }
-                        .padding(.horizontal, Constants.UI.spacing24)
-                        
-                        // Reset Button
-                        MLButton.primary(
-                            "Send Reset Link",
-                            icon: "paperplane.fill",
-                            isLoading: isLoading
-                        ) {
-                            Task {
-                                await sendResetLink()
+                            
+                            // Send Link Button
+                            MLButton.primary(
+                                "Send Reset Link",
+                                icon: "paperplane.fill",
+                                size: .large,
+                                isLoading: viewModel.isLoading
+                            ) {
+                                Task {
+                                    await viewModel.resetPassword()
+                                    if viewModel.successMessage != nil {
+                                        showSuccessMessage = true
+                                        // Auto dismiss after 2 seconds
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                            dismiss()
+                                        }
+                                    }
+                                }
                             }
+                            
+                            // Back to Login
+                            Button(action: { dismiss() }) {
+                                HStack(spacing: Constants.UI.spacing8) {
+                                    Image(systemName: "arrow.left")
+                                    Text("Back to Login")
+                                }
+                                .font(.bodyMedium)
+                                .foregroundColor(.primaryStart)
+                            }
+                            .padding(.top, Constants.UI.spacing8)
                         }
                         .padding(.horizontal, Constants.UI.spacing24)
                         
@@ -95,44 +123,16 @@ struct ForgotPasswordView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
-                        dismiss()
-                    }) {
+                    Button(action: { dismiss() }) {
                         Image(systemName: "xmark")
                             .foregroundColor(.textPrimary)
                     }
                 }
             }
         }
-    }
-    
-    // MARK: - Actions
-    
-    private func sendResetLink() async {
-        // Validate email
-        let validation = ValidationHelper.validateEmail(email)
-        guard validation.isValid else {
-            emailError = validation.errorMessage
-            return
+        .onAppear {
+            viewModel.clearErrors()
         }
-        
-        emailError = nil
-        errorMessage = nil
-        isLoading = true
-        
-        do {
-            try await authService.requestPasswordReset(email: email.trimmingCharacters(in: .whitespaces))
-            showSuccess = true
-            
-            // Auto dismiss after 3 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                dismiss()
-            }
-        } catch {
-            errorMessage = NetworkManager.shared.friendlyErrorMessage(error)
-        }
-        
-        isLoading = false
     }
 }
 
@@ -140,5 +140,6 @@ struct ForgotPasswordView: View {
 struct ForgotPasswordView_Previews: PreviewProvider {
     static var previews: some View {
         ForgotPasswordView()
+            .environmentObject(AuthViewModel())
     }
 }

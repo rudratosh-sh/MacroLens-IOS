@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import Lottie // <-- 1. Import Lottie
 
 struct SplashView: View {
     @State private var isActive = false
+    
     var body: some View {
         if isActive {
             OnboardingView()
@@ -18,15 +20,18 @@ struct SplashView: View {
                     .edgesIgnoringSafeArea(.all)
                 
                 VStack(spacing: 0) {
-                    Spacer() // Remove fixed height to let it expand dynamically
+                    Spacer()
                     
-                    // Logo
-                    Image("newlogo")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 250, height: 250)
+                    // 2. Replace the Image with your new LottieView
+                    LottieView(animationName: "logo", loopMode: .playOnce) {
+                        // This code now runs when the animation finishes
+                        withAnimation(.easeInOut(duration: 0.1)) {
+                            isActive = true
+                        }
+                    }
+                    .frame(width: 250, height: 250)
                     
-                    Spacer() // Let this expand to push the button to the bottom
+                    Spacer()
                     
                     // Get Started Button
                     Button(action: {
@@ -57,13 +62,10 @@ struct SplashView: View {
                 }
             }
             .edgesIgnoringSafeArea(.all)
-            .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        isActive = true
-                    }
-                }
-            }
+            // 3. You don't need the .onAppear timer anymore!
+            // The LottieView will set 'isActive' to true when it finishes.
         }
     }
 }
+
+

@@ -1,15 +1,17 @@
 {
   "images" : [
     {
+      "filename" : "OnboardingCharacterWithoutBowl3@1x.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "OnboardingCharacterWithoutBowl3@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "MacroLensLogo@3x.png",
+      "filename" : "OnboardingCharacterWithoutBowl3@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

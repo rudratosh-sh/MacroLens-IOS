@@ -14,14 +14,12 @@ struct ContentView: View {
     var body: some View {
         Group {
             if authViewModel.isAuthenticated {
-                // Main app (placeholder for Day 3+)
                 MainTabView()
             } else {
-                // Login screen
                 LoginView()
+                    .environmentObject(authViewModel)
             }
         }
-        .environmentObject(authViewModel)
     }
 }
 

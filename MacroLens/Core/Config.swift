@@ -1,4 +1,3 @@
-
 //
 //  Config.swift
 //  MacroLens
@@ -8,12 +7,13 @@
 
 import Foundation
 
-enum Environment {
+enum AppEnvironment {
     case development
     case staging
     case production
     
-    static var current: Environment {
+    // FIX 1: The return type must also be AppEnvironment
+    static var current: AppEnvironment {
         #if DEBUG
         return .development
         #else
@@ -25,7 +25,9 @@ enum Environment {
 struct Config {
     
     // MARK: - Environment
-    static let environment = Environment.current
+    
+    // FIX 2: Use the new enum name AppEnvironment here
+    static let environment = AppEnvironment.current
     
     // MARK: - API Configuration
     struct API {

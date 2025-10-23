@@ -6,11 +6,10 @@
 //
 
 import SwiftUI
-import LocalAuthentication
 
 struct LoginView: View {
     
-    @StateObject private var viewModel = AuthViewModel()
+    @EnvironmentObject var viewModel: AuthViewModel
     @State private var showRegisterView = false
     @State private var showForgotPassword = false
     
@@ -25,210 +24,161 @@ struct LoginView: View {
             .ignoresSafeArea()
             
             // Content
-            VStack(spacing: 0) {
-                // Top Section - Logo & Title
-                VStack(spacing: 24) {
-                    Spacer()
-                    
-                    // Logo
-                    ZStack {
-                        Circle()
-                            .fill(Color.white.opacity(0.2))
-                            .frame(width: 120, height: 120)
-                        
-                        Circle()
-                            .fill(Color.white.opacity(0.3))
-                            .frame(width: 100, height: 100)
-                        
-                        Image(systemName: "camera.macro")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 50, height: 50)
-                            .foregroundColor(.white)
-                    }
-                    
-                    VStack(spacing: 8) {
-                        Text("MacroLens")
-                            .font(.system(size: 36, weight: .bold))
-                            .foregroundColor(.white)
-                        
-                        Text("See your macros, powered by AI")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.white.opacity(0.9))
-                    }
-                    
-                    Spacer()
-                }
-                .frame(height: UIScreen.main.bounds.height * 0.4)
-                
-                // Bottom Section - Login Form
+            ScrollView {
                 VStack(spacing: 0) {
-                    VStack(spacing: 20) {
-                        // Email Field
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Email")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(.textSecondary)
+                    // Top Section - Logo & Title
+                    VStack(spacing: Constants.UI.spacing24) {
+                        Spacer()
+                            .frame(height: Constants.UI.spacing64)
+                        
+                        // Logo
+                        ZStack {
+                            Circle()
+                                .fill(Color.white.opacity(0.2))
+                                .frame(width: 120, height: 120)
                             
-                            HStack(spacing: 12) {
-                                Image(systemName: "envelope.fill")
-                                    .foregroundColor(.textTertiary)
-                                    .frame(width: 20)
-                                
-                                TextField("Enter your email", text: $viewModel.loginEmail)
-                                    .keyboardType(.emailAddress)
-                                    .textInputAutocapitalization(.never)
-                                    .autocorrectionDisabled()
-                            }
-                            .padding()
-                            .background(Color.backgroundSecondary)
-                            .cornerRadius(12)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(viewModel.loginEmailError != nil ? Color.error : Color.border, lineWidth: 1)
-                            )
+                            Circle()
+                                .fill(Color.white.opacity(0.3))
+                                .frame(width: 100, height: 100)
                             
-                            if let error = viewModel.loginEmailError {
-                                Text(error)
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.error)
-                            }
+                            Image(systemName: "camera.macro")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 50, height: 50)
+                                .foregroundColor(.white)
                         }
                         
-                        // Password Field
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Password")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(.textSecondary)
+                        VStack(spacing: Constants.UI.spacing8) {
+                            Text("MacroLens")
+                                .font(.displayLarge)
+                                .foregroundColor(.white)
                             
-                            HStack(spacing: 12) {
-                                Image(systemName: "lock.fill")
-                                    .foregroundColor(.textTertiary)
-                                    .frame(width: 20)
-                                
-                                SecureField("Enter your password", text: $viewModel.loginPassword)
-                            }
-                            .padding()
-                            .background(Color.backgroundSecondary)
-                            .cornerRadius(12)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(viewModel.loginPasswordError != nil ? Color.error : Color.border, lineWidth: 1)
-                            )
-                            
-                            if let error = viewModel.loginPasswordError {
-                                Text(error)
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.error)
-                            }
+                            Text("See your macros, powered by AI")
+                                .font(.bodyLarge)
+                                .foregroundColor(.white.opacity(0.9))
                         }
                         
-                        // Forgot Password
-                        HStack {
-                            Spacer()
-                            Button(action: { showForgotPassword = true }) {
-                                Text("Forgot Password?")
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(.primaryStart)
-                            }
-                        }
-                        .padding(.top, -8)
-                        
-                        // Error Message
-                        if let errorMessage = viewModel.errorMessage {
-                            HStack(spacing: 8) {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                Text(errorMessage)
-                                    .font(.system(size: 14))
-                            }
-                            .foregroundColor(.error)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.error.opacity(0.1))
-                            .cornerRadius(12)
-                        }
-                        
-                        // Login Button
-                        Button(action: {
-                            Task { await viewModel.login() }
-                        }) {
-                            HStack(spacing: 12) {
-                                if viewModel.isLoading {
-                                    ProgressView()
-                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                }
-                                Text(viewModel.isLoading ? "Logging in..." : "Log In")
-                                    .font(.system(size: 17, weight: .semibold))
-                            }
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(
-                                LinearGradient(
-                                    colors: [Color.primaryStart, Color.primaryEnd],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .cornerRadius(16)
-                            .shadow(color: Color.primaryStart.opacity(0.3), radius: 10, y: 5)
-                        }
-                        .disabled(viewModel.isLoading)
-                        .padding(.top, 8)
-                        
-                        // Biometric Login
-                        if viewModel.biometricType() != .none {
-                            Button(action: {
-                                Task { _ = await viewModel.loginWithBiometrics() }
-                            }) {
-                                HStack(spacing: 8) {
-                                    Image(systemName: biometricIcon)
-                                        .font(.system(size: 20))
-                                    Text("Login with \(biometricName)")
-                                        .font(.system(size: 15, weight: .medium))
-                                }
-                                .foregroundColor(.primaryStart)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 56)
-                                .background(Color.white)
-                                .cornerRadius(16)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .stroke(Color.primaryStart.opacity(0.3), lineWidth: 1.5)
-                                )
-                            }
-                        }
-                        
-                        // Register Link
-                        HStack(spacing: 4) {
-                            Text("Don't have an account?")
-                                .font(.system(size: 15))
-                                .foregroundColor(.textSecondary)
-                            
-                            Button(action: { showRegisterView = true }) {
-                                Text("Sign Up")
-                                    .font(.system(size: 15, weight: .semibold))
-                                    .foregroundColor(.primaryStart)
-                            }
-                        }
-                        .padding(.top, 8)
+                        Spacer()
+                            .frame(height: Constants.UI.spacing32)
                     }
-                    .padding(.horizontal, 24)
-                    .padding(.top, 32)
-                    .padding(.bottom, 40)
+                    
+                    // Bottom Section - Login Form
+                    VStack(spacing: Constants.UI.spacing20) {
+                        VStack(spacing: Constants.UI.spacing20) {
+                            // Email Field
+                            MLTextField.email(
+                                text: $viewModel.loginEmail,
+                                errorMessage: viewModel.loginEmailError
+                            )
+                            
+                            // Password Field
+                            MLTextField.password(
+                                text: $viewModel.loginPassword,
+                                errorMessage: viewModel.loginPasswordError
+                            )
+                            
+                            // Forgot Password
+                            HStack {
+                                Spacer()
+                                Button(action: { showForgotPassword = true }) {
+                                    Text("Forgot Password?")
+                                        .font(.bodyMedium)
+                                        .foregroundColor(.primaryStart)
+                                }
+                            }
+                            .padding(.top, -Constants.UI.spacing8)
+                            
+                            // Error Message
+                            if let errorMessage = viewModel.errorMessage {
+                                HStack(spacing: Constants.UI.spacing8) {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                    Text(errorMessage)
+                                        .font(.bodySmall)
+                                }
+                                .foregroundColor(.error)
+                                .padding()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color.error.opacity(0.1))
+                                .cornerRadius(Constants.UI.cornerRadiusMedium)
+                            }
+                            
+                            // Login Button
+                            MLButton.primary(
+                                "Log In",
+                                icon: "arrow.right.circle.fill",
+                                size: .large,
+                                isLoading: viewModel.isLoading
+                            ) {
+                                Task {
+                                    await viewModel.login()
+                                }
+                            }
+                            .padding(.top, Constants.UI.spacing8)
+                            
+                            // Biometric Login
+                            if viewModel.biometricType() != .none {
+                                MLButton.outline(
+                                    "Login with \(biometricName)",
+                                    icon: biometricIcon,
+                                    size: .large
+                                ) {
+                                    Task {
+                                        _ = await viewModel.loginWithBiometrics()
+                                    }
+                                }
+                            }
+                            
+                            // Divider
+                            HStack(spacing: Constants.UI.spacing16) {
+                                Rectangle()
+                                    .fill(Color.gray3)
+                                    .frame(height: 1)
+                                
+                                Text("Or")
+                                    .font(.bodyMedium)
+                                    .foregroundColor(.textSecondary)
+                                
+                                Rectangle()
+                                    .fill(Color.gray3)
+                                    .frame(height: 1)
+                            }
+                            .padding(.vertical, Constants.UI.spacing8)
+                            
+                            // Register Link
+                            HStack(spacing: Constants.UI.spacing4) {
+                                Text("Don't have an account?")
+                                    .font(.bodyMedium)
+                                    .foregroundColor(.textSecondary)
+                                
+                                Button(action: { showRegisterView = true }) {
+                                    Text("Sign Up")
+                                        .font(.labelLarge)
+                                        .foregroundColor(.primaryStart)
+                                }
+                            }
+                        }
+                        .padding(.horizontal, Constants.UI.spacing24)
+                        .padding(.top, Constants.UI.spacing32)
+                        .padding(.bottom, Constants.UI.spacing40)
+                    }
+                    .background(
+                        Color.backgroundPrimary
+                            .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+                            .ignoresSafeArea()
+                    )
                 }
-                .background(
-                    Color.backgroundPrimary
-                        .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
-                        .ignoresSafeArea()
-                )
             }
         }
         .sheet(isPresented: $showRegisterView) {
             RegisterView()
+                .environmentObject(viewModel)
         }
         .sheet(isPresented: $showForgotPassword) {
             ForgotPasswordView()
+                .environmentObject(viewModel)
+        }
+        .onAppear {
+            viewModel.clearErrors()
         }
     }
     
@@ -251,8 +201,10 @@ struct LoginView: View {
     }
 }
 
+// MARK: - Preview
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
         LoginView()
+            .environmentObject(AuthViewModel())
     }
 }

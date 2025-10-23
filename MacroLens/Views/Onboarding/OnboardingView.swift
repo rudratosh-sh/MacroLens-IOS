@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Lottie
 
 struct OnboardingView: View {
     @State private var currentPage = 0
@@ -25,6 +26,9 @@ struct OnboardingView: View {
                     
                     OnboardingPage3()
                         .tag(2)
+                    
+                    OnboardingPage4()
+                        .tag(3)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .edgesIgnoringSafeArea(.all)
@@ -35,9 +39,9 @@ struct OnboardingView: View {
                     HStack {
                         Spacer()
                         
-                        CustomNextButton(currentPage: currentPage, totalPages: 3) {
+                        CustomNextButton(currentPage: currentPage, totalPages: 4) {
                             withAnimation(.easeInOut(duration: 0.5)) {
-                                if currentPage < 2 {
+                                if currentPage < 3 {
                                     currentPage += 1
                                 } else {
                                     isOnboardingComplete = true
@@ -229,7 +233,7 @@ struct OnboardingPage2: View {
                     .padding(.horizontal, 40)
                     .padding(.bottom, 8)
                 
-                Text("Let’s keep burning, to achive yours goals, it hurts only temporarily, if you give up now you will be in pain forever")
+                Text("Let's keep burning, to achive yours goals, it hurts only temporarily, if you give up now you will be in pain forever")
                     .mediumTextRegular(color: .gray1)
                     .padding(.horizontal, 40)
                 
@@ -240,9 +244,7 @@ struct OnboardingPage2: View {
     }
 }
 
-
-
-
+// MARK: - Page 3
 struct OnboardingPage3: View {
     var body: some View {
         ZStack {
@@ -286,21 +288,25 @@ struct OnboardingPage3: View {
             }
             .edgesIgnoringSafeArea(.top)
             
-            Image("OnboardingIllustration3")
+            Image("OnboardingCharacterWithoutBowl3")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 308, height: 351)
                 .position(x: UIScreen.main.bounds.width / 2 + 15 , y: 238)
             
+            LottieView(animationName: "saladBowl", loopMode: .playOnce)
+                .frame(width: 118.25, height: 69.26)
+                .position(x: UIScreen.main.bounds.width / 2 + 72 , y: 287)
+            
             VStack(alignment: .leading, spacing: 16) {
                 Spacer()
                 
-                Text("Get Burn")
+                Text("Eat Well")
                     .h2Bold(color: .blackPrimary)
                     .padding(.horizontal, 40)
                     .padding(.bottom, 8)
                 
-                Text("Let’s keep burning, to achive yours goals, it hurts only temporarily, if you give up now you will be in pain forever")
+                Text("Let's start a healthy lifestyle with us, we can determine your diet every day. healthy eating is fun")
                     .mediumTextRegular(color: .gray1)
                     .padding(.horizontal, 40)
                 
@@ -310,6 +316,89 @@ struct OnboardingPage3: View {
         }
     }
 }
+
+// MARK: - Page 4 (Final CTA Page)
+struct OnboardingPage4: View {
+    @State private var isAnimating = false
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                // Background gradient with SVG path
+                Path { path in
+                    let width = geometry.size.width
+                    let scale = width / 375
+                    
+                    path.move(to: CGPoint(x: 0, y: -27 * scale))
+                    path.addLine(to: CGPoint(x: width, y: -27 * scale))
+                    path.addLine(to: CGPoint(x: width, y: 303.599 * scale))
+                    
+                    path.addCurve(to: CGPoint(x: 294.733 * scale, y: 346.158 * scale),
+                                  control1: CGPoint(x: width, y: 303.599 * scale),
+                                  control2: CGPoint(x: 350.3 * scale, y: 346.158 * scale))
+                    
+                    path.addCurve(to: CGPoint(x: 42.7333 * scale, y: 87.378 * scale),
+                                  control1: CGPoint(x: 186.333 * scale, y: 346.158 * scale),
+                                  control2: CGPoint(x: 83.0333 * scale, y: 102.606 * scale))
+                    
+                    path.addCurve(to: CGPoint(x: 0, y: 118.599 * scale),
+                                  control1: CGPoint(x: 13.8333 * scale, y: 76.4389 * scale),
+                                  control2: CGPoint(x: 0, y: 118.599 * scale))
+                    
+                    path.closeSubpath()
+                }
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [Color.primaryStart, Color.primaryEnd]),
+                        startPoint: UnitPoint(x: 1, y: 1),
+                        endPoint: UnitPoint(x: -0.335, y: 0.924)
+                    )
+                )
+                .edgesIgnoringSafeArea(.top)
+                
+                VStack(spacing: 0) {
+                    Spacer()
+                        .frame(height: 80)
+                    
+                    // Character illustration with floating animation
+                    Image("OnboardingIllustration4")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 300, height: 340)
+                        .offset(y: isAnimating ? -10 : 10)
+                        .animation(
+                            Animation.easeInOut(duration: 2.0)
+                                .repeatForever(autoreverses: true),
+                            value: isAnimating
+                        )
+                        .onAppear {
+                            isAnimating = true
+                        }
+                    
+                    Spacer()
+                        .frame(height: 60)
+                    
+                    // Text content
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("Improve Your Health")
+                            .h2Bold(color: .blackPrimary)
+                            .padding(.horizontal, 40)
+                            .padding(.bottom, 8)
+                        
+                        Text("Track your fitness journey with us, we will help you reach your goals everyday with personalized insights")
+                            .mediumTextRegular(color: .gray1)
+                            .padding(.horizontal, 40)
+                    }
+                    
+                    Spacer()
+                        .frame(height: 180)
+                }
+            }
+        }
+        .edgesIgnoringSafeArea(.top)
+    }
+}
+
 
 struct OnboardingView_Previews: PreviewProvider {
     static var previews: some View {
