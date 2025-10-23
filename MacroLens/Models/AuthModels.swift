@@ -28,8 +28,7 @@ struct RegisterRequest: Codable, Sendable {
     }
 }
 
-// MARK: - Auth Response (What iOS receives from backend)
-// Backend returns: { success: true, data: { user: {...}, tokens: {...} } }
+// MARK: - Auth Response (simplified for ViewModel)
 struct AuthResponse: Codable, Sendable {
     let user: User
     let accessToken: String
@@ -46,8 +45,9 @@ struct AuthResponse: Codable, Sendable {
     }
 }
 
-// MARK: - Backend API Wrappers
-// These match the nested structure from backend: { user: {...}, tokens: {...} }
+// MARK: - Backend API Response Wrappers
+// Backend returns: { success: true, data: { user: {...}, tokens: {...} } }
+
 struct AuthDataResponse: Codable, Sendable {
     let user: User
     let tokens: TokenData
@@ -65,6 +65,14 @@ struct TokenData: Codable, Sendable {
         case tokenType = "token_type"
         case expiresIn = "expires_in"
     }
+}
+
+struct UserDataResponse: Codable, Sendable {
+    let user: User
+}
+
+struct TokenDataResponse: Codable, Sendable {
+    let tokens: TokenData
 }
 
 // MARK: - Token Refresh Request
@@ -123,12 +131,5 @@ struct ChangePasswordRequest: Codable, Sendable {
     }
 }
 
-// MARK: - User Wrapper (for /me endpoint)
-struct UserDataResponse: Codable, Sendable {
-    let user: User
-}
-
-// MARK: - Token Wrapper (for refresh endpoint)
-struct TokenDataResponse: Codable, Sendable {
-    let tokens: TokenData
-}
+// MARK: - Empty Response Helper
+struct EmptyDataResponse: Codable, Sendable {}
