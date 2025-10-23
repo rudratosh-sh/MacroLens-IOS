@@ -2,7 +2,7 @@
 //  MLTextField.swift
 //  MacroLens
 //
-//  Custom text field component with MacroLens styling
+//  Path: MacroLens/Views/Components/MLTextField.swift
 //
 
 import SwiftUI
@@ -90,8 +90,8 @@ struct MLTextField: View {
     
     // MARK: - Body
     var body: some View {
-        VStack(alignment: .leading, spacing: Constants.UI.spacing8) {
-            // Title Label
+        VStack(alignment: .leading, spacing: 8) {
+            // Title (if provided)
             if !title.isEmpty {
                 Text(title)
                     .font(.labelMedium)
@@ -99,66 +99,66 @@ struct MLTextField: View {
             }
             
             // Text Field Container
-            HStack(spacing: Constants.UI.spacing12) {
+            HStack(spacing: 12) {
                 // Leading Icon
                 if let icon = icon {
                     Image(systemName: icon)
-                        .font(.system(size: Constants.UI.iconSizeMedium))
-                        .foregroundColor(iconColor)
+                        .font(.system(size: 18))
+                        .foregroundColor(.gray2)
+                        .frame(width: 20, height: 20)
                 }
                 
-                // Text Field
+                // Text Input
                 Group {
                     if type == .password && !isPasswordVisible {
                         SecureField(placeholder, text: $text)
+                            .textContentType(type.contentType)
+                            .autocorrectionDisabled()
                     } else {
                         TextField(placeholder, text: $text)
                             .keyboardType(type.keyboardType)
                             .textInputAutocapitalization(type.autocapitalization)
                             .textContentType(type.contentType)
-                            .autocorrectionDisabled(type == .email || type == .password)
+                            .autocorrectionDisabled(type == .email)
                     }
                 }
-                .font(.bodyLarge)
+                .font(.bodyMedium)
                 .foregroundColor(.textPrimary)
                 .focused($isFocused)
                 
-                // Password Visibility Toggle
+                // Trailing Actions
                 if type == .password {
                     Button(action: {
                         isPasswordVisible.toggle()
                     }) {
                         Image(systemName: isPasswordVisible ? "eye.slash.fill" : "eye.fill")
-                            .font(.system(size: Constants.UI.iconSizeMedium))
-                            .foregroundColor(.textTertiary)
+                            .font(.system(size: 18))
+                            .foregroundColor(.gray2)
                     }
-                }
-                
-                // Clear Button
-                if !text.isEmpty && isFocused && type != .password {
+                } else if !text.isEmpty && isFocused {
                     Button(action: {
                         text = ""
                     }) {
                         Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: Constants.UI.iconSizeMedium))
-                            .foregroundColor(.textTertiary)
+                            .font(.system(size: 18))
+                            .foregroundColor(.gray2)
                     }
                 }
             }
-            .padding(.horizontal, Constants.UI.spacing16)
-            .padding(.vertical, Constants.UI.spacing12)
-            .background(Color.backgroundSecondary)
-            .cornerRadius(Constants.UI.cornerRadiusMedium)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .background(Color(red: 0.95, green: 0.96, blue: 0.97)) // Light gray background #F7F8F8
+            .cornerRadius(14)
             .overlay(
-                RoundedRectangle(cornerRadius: Constants.UI.cornerRadiusMedium)
-                    .stroke(borderColor, lineWidth: Constants.UI.borderWidthMedium)
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(borderColor, lineWidth: 1)
             )
             
             // Helper Text or Error Message
             if let errorMessage = errorMessage {
-                HStack(spacing: Constants.UI.spacing4) {
+                HStack(spacing: 4) {
                     Image(systemName: "exclamationmark.circle.fill")
-                        .font(.captionMedium)
+                        .font(.system(size: 12))
                     Text(errorMessage)
                         .font(.captionMedium)
                 }
@@ -177,19 +177,9 @@ struct MLTextField: View {
         if errorMessage != nil {
             return .error
         } else if isFocused {
-            return .primaryStart
+            return .clear // No border when focused
         } else {
-            return .border
-        }
-    }
-    
-    private var iconColor: Color {
-        if errorMessage != nil {
-            return .error
-        } else if isFocused {
-            return .primaryStart
-        } else {
-            return .textTertiary
+            return .clear // No border in normal state
         }
     }
 }
@@ -199,8 +189,8 @@ extension MLTextField {
     
     /// Email text field
     static func email(
-        title: String = "Email",
-        placeholder: String = "Enter your email",
+        title: String = "",
+        placeholder: String = "Email",
         text: Binding<String>,
         errorMessage: String? = nil
     ) -> MLTextField {
@@ -216,8 +206,8 @@ extension MLTextField {
     
     /// Password text field
     static func password(
-        title: String = "Password",
-        placeholder: String = "Enter your password",
+        title: String = "",
+        placeholder: String = "Password",
         text: Binding<String>,
         errorMessage: String? = nil,
         helperText: String? = nil
@@ -273,7 +263,7 @@ extension MLTextField {
 // MARK: - Preview
 struct MLTextField_Previews: PreviewProvider {
     static var previews: some View {
-        VStack(spacing: Constants.UI.spacing20) {
+        VStack(spacing: 20) {
             MLTextField.email(
                 text: .constant(""),
                 errorMessage: nil
@@ -285,25 +275,17 @@ struct MLTextField_Previews: PreviewProvider {
             )
             
             MLTextField(
-                title: "Full Name",
-                placeholder: "John Doe",
+                placeholder: "First Name",
                 icon: "person",
                 text: .constant("")
             )
             
-            MLTextField.decimal(
-                title: "Weight (kg)",
-                placeholder: "70.5",
-                icon: "scalemass",
-                text: .constant("")
-            )
-            
             MLTextField.email(
-                text: .constant("invalid-email"),
+                text: .constant("invalid"),
                 errorMessage: "Please enter a valid email address"
             )
         }
         .padding()
-        .background(Color.backgroundPrimary)
+        .background(Color.white)
     }
 }
