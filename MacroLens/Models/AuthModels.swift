@@ -17,18 +17,16 @@ struct LoginRequest: Codable, Sendable {
 struct RegisterRequest: Codable, Sendable {
     let email: String
     let password: String
-    let firstName: String?
-    let lastName: String?
+    let fullName: String
     
     enum CodingKeys: String, CodingKey {
         case email
         case password
-        case firstName = "first_name"
-        case lastName = "last_name"
+        case fullName = "full_name"
     }
 }
 
-// MARK: - Auth Response (simplified for ViewModel)
+// MARK: - Auth Response
 struct AuthResponse: Codable, Sendable {
     let user: User
     let accessToken: String
@@ -43,36 +41,6 @@ struct AuthResponse: Codable, Sendable {
         case tokenType = "token_type"
         case expiresIn = "expires_in"
     }
-}
-
-// MARK: - Backend API Response Wrappers
-// Backend returns: { success: true, data: { user: {...}, tokens: {...} } }
-
-struct AuthDataResponse: Codable, Sendable {
-    let user: User
-    let tokens: TokenData
-}
-
-struct TokenData: Codable, Sendable {
-    let accessToken: String
-    let refreshToken: String
-    let tokenType: String
-    let expiresIn: Int
-    
-    enum CodingKeys: String, CodingKey {
-        case accessToken = "access_token"
-        case refreshToken = "refresh_token"
-        case tokenType = "token_type"
-        case expiresIn = "expires_in"
-    }
-}
-
-struct UserDataResponse: Codable, Sendable {
-    let user: User
-}
-
-struct TokenDataResponse: Codable, Sendable {
-    let tokens: TokenData
 }
 
 // MARK: - Token Refresh Request
@@ -131,5 +99,13 @@ struct ChangePasswordRequest: Codable, Sendable {
     }
 }
 
-// MARK: - Empty Response Helper
-struct EmptyDataResponse: Codable, Sendable {}
+// MARK: - Biometric Login Request
+struct BiometricLoginRequest: Codable, Sendable {
+    let email: String
+    let biometricToken: String
+    
+    enum CodingKeys: String, CodingKey {
+        case email
+        case biometricToken = "biometric_token"
+    }
+}

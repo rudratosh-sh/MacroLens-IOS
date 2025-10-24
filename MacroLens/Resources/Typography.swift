@@ -89,6 +89,7 @@ extension Font {
     static let captionSmall = captionRegular
     static let buttonText = largeTextSemiBold
     static let buttonSmall = mediumTextSemiBold
+    static let buttonMedium = mediumTextSemiBold
 }
 
 // MARK: - Text Style Modifiers
@@ -181,5 +182,16 @@ extension View {
     }
     func linkLarge(color: Color = .primaryStart) -> some View {
         self.font(.linkLarge).foregroundColor(color).lineSpacing(21)
+    }
+}
+
+extension View {
+    @ViewBuilder
+    func ifAvailableiOS16() -> some View {
+        if #available(iOS 16, *) {
+            self.scrollIndicators(.hidden)
+        } else {
+            self
+        }
     }
 }

@@ -4,64 +4,125 @@
 //
 //  Path: MacroLens/ViewModels/AuthViewModel.swift
 //
+//  Description: ViewModel managing authentication state and user interactions
+//
 
+import Foundation
 import SwiftUI
 import LocalAuthentication
 import Combine
 
 @MainActor
-class AuthViewModel: ObservableObject {
+final class AuthViewModel: ObservableObject {
     
     // MARK: - Published Properties
     
-    // Auth State
+    // Authentication State
     @Published var user: User?
     @Published var isAuthenticated = false
     @Published var isLoading = false
     @Published var errorMessage: String?
-    @Published var successMessage: String?
     
-    // Login Properties
+    // Login Form
     @Published var loginEmail = ""
     @Published var loginPassword = ""
-    @Published var loginEmailError: String?
-    @Published var loginPasswordError: String?
     
-    // Register Properties
-    @Published var registerFirstName = ""
-    @Published var registerLastName = ""
+    // Register Form
     @Published var registerEmail = ""
     @Published var registerPassword = ""
     @Published var registerConfirmPassword = ""
+    @Published var registerFullName = ""
+    @Published var acceptedTerms = false
+    
+    // Validation Errors
+    @Published var loginEmailError: String?
+    @Published var loginPasswordError: String?
     @Published var registerEmailError: String?
     @Published var registerPasswordError: String?
     @Published var registerConfirmPasswordError: String?
+    @Published var registerFullNameError: String?
     
-    // Forgot Password Properties
-    @Published var forgotPasswordEmail = ""
-    @Published var forgotPasswordEmailError: String?
+    // Biometric State
+    @Published var showBiometricPrompt = false
     
-    // MARK: - Dependencies
+    // MARK: - Properties
+    
     private let authService = AuthService.shared
-    private let networkManager = NetworkManager.shared
+    private let biometricManager = BiometricAuthManager.shared
     private var cancellables = Set<AnyCancellable>()
     
+    // MARK: - Computed Properties
+    
+    var canUseBiometric: Bool {
+        return biometricManager.isBiometricAvailable() &&
+               biometricManager.isBiometricEnabled()
+    }
+    
+    var passwordStrength: PasswordStrength {
+        return ValidationHelper.getPasswordStrength(registerPassword)
+    }
+    
     // MARK: - Initialization
+    
     init() {
         checkAuthStatus()
-        setupObservers()
+        setupValidation()
     }
     
     // MARK: - Setup
     
-    /// Setup observers for authentication state
-    private func setupObservers() {
-        // Monitor network connectivity
-        networkManager.$isOnline
-            .sink { [weak self] isOnline in
-                if !isOnline {
-                    self?.errorMessage = "No internet connection. Please check your network."
-                }
+    /// Setup real-time form validation
+    private func setupValidation() {
+        // Login email validation
+        $loginEmail
+            .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+            .sink { [weak self] email in
+                guard let self = self, !email.isEmpty else { return }
+                let result = ValidationHelper.validateEmail(email)
+                self.loginEmailError = result.isValid ? nil : result.errorMessage
+            }
+            .store(in: &cancellables)
+        
+        // Register email validation
+        $registerEmail
+            .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+            .sink { [weak self] email in
+                guard let self = self, !email.isEmpty else { return }
+                let result = ValidationHelper.validateEmail(email)
+                self.registerEmailError = result.isValid ? nil : result.errorMessage
+            }
+            .store(in: &cancellables)
+        
+        // Register password validation
+        $registerPassword
+            .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+            .sink { [weak self] password in
+                guard let self = self, !password.isEmpty else { return }
+                let result = ValidationHelper.validatePassword(password)
+                self.registerPasswordError = result.isValid ? nil : result.errorMessage
+            }
+            .store(in: &cancellables)
+        
+        // Register confirm password validation
+        $registerConfirmPassword
+            .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+            .sink { [weak self] confirmPassword in
+                guard let self = self, !confirmPassword.isEmpty else { return }
+                let result = ValidationHelper.validatePasswordMatch(
+                    self.registerPassword,
+                    confirmPassword
+                )
+                self.registerConfirmPasswordError = result.isValid ? nil : result.errorMessage
+            }
+            .store(in: &cancellables)
+        
+        // Full name validation
+        $registerFullName
+            .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+            .sink { [weak self] name in
+                guard let self = self, !name.isEmpty else { return }
+                let result = ValidationHelper.validateFullName(name)
+                self.registerFullNameError = result.isValid ? nil : result.errorMessage
             }
             .store(in: &cancellables)
     }
@@ -84,7 +145,7 @@ class AuthViewModel: ObservableObject {
         do {
             user = try await authService.getCurrentUser()
             isAuthenticated = true
-            Config.Logging.log("User profile loaded successfully", level: .info)
+            Config.Logging.log("User profile loaded", level: .info)
         } catch {
             Config.Logging.log("Failed to load user: \(error)", level: .error)
             // Clear auth if token is invalid
@@ -94,10 +155,11 @@ class AuthViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Login Methods
+    // MARK: - Login
     
     /// Validate login form
-    private func validateLoginForm() -> Bool {
+    /// - Returns: Boolean indicating if form is valid
+    func validateLoginForm() -> Bool {
         var isValid = true
         
         // Email validation
@@ -109,9 +171,12 @@ class AuthViewModel: ObservableObject {
             loginEmailError = nil
         }
         
-        // Password validation (basic check)
+        // Password validation
         if loginPassword.isEmpty {
             loginPasswordError = "Password is required"
+            isValid = false
+        } else if loginPassword.count < 8 {
+            loginPasswordError = "Password must be at least 8 characters"
             isValid = false
         } else {
             loginPasswordError = nil
@@ -122,11 +187,10 @@ class AuthViewModel: ObservableObject {
     
     /// Login user with email and password
     func login() async {
-        clearErrors()
-        
         guard validateLoginForm() else { return }
         
         isLoading = true
+        errorMessage = nil
         
         do {
             let response = try await authService.login(
@@ -136,64 +200,99 @@ class AuthViewModel: ObservableObject {
             
             user = response.user
             isAuthenticated = true
-            successMessage = "Welcome back!"
+            
+            // Prompt for biometric enrollment if available
+            if biometricManager.shouldPromptForEnrollment() {
+                showBiometricPrompt = true
+            }
             
             // Clear form
             clearLoginForm()
             
-            Config.Logging.log("User logged in: \(response.user.email)", level: .info)
-            
         } catch {
-            handleAuthError(error)
+            errorMessage = NetworkManager.shared.friendlyErrorMessage(error)
             Config.Logging.log("Login failed: \(error)", level: .error)
         }
         
         isLoading = false
     }
     
-    /// Login with biometrics (Face ID / Touch ID)
-    func loginWithBiometrics() async -> Bool {
-        let context = LAContext()
-        var error: NSError?
+    // MARK: - Biometric Login
+    
+    /// Get biometric type for UI display
+    /// - Returns: LABiometryType
+    func biometricType() -> LABiometryType {
+        return biometricManager.biometricType()
+    }
+    
+    /// Get biometric display name
+    /// - Returns: User-friendly name
+    func biometricDisplayName() -> String {
+        return biometricManager.biometricDisplayName()
+    }
+    
+    /// Login with biometric authentication
+    func loginWithBiometrics() async {
+        isLoading = true
+        errorMessage = nil
         
-        // Check if biometrics available
-        guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
-            errorMessage = "Biometric authentication not available"
-            return false
+        do {
+            let response = try await authService.loginWithBiometrics()
+            
+            user = response.user
+            isAuthenticated = true
+            
+            Config.Logging.log("Biometric login successful", level: .info)
+            
+        } catch let error as BiometricError {
+            errorMessage = error.localizedDescription
+            Config.Logging.log("Biometric login failed: \(error)", level: .error)
+        } catch {
+            errorMessage = "Biometric authentication failed. Please use password"
+            Config.Logging.log("Biometric login error: \(error)", level: .error)
+        }
+        
+        isLoading = false
+    }
+    
+    /// Enable biometric login for current user
+    func enableBiometricLogin() {
+        guard let email = authService.userEmail else {
+            errorMessage = "Unable to enable biometric login"
+            return
         }
         
         do {
-            let success = try await context.evaluatePolicy(
-                .deviceOwnerAuthenticationWithBiometrics,
-                localizedReason: "Use biometrics to log in to MacroLens"
-            )
-            
-            if success {
-                // TODO: Implement biometric login with stored credentials
-                // For now, just return success
-                Config.Logging.log("Biometric authentication successful", level: .info)
-            }
-            
-            return success
+            try authService.enableBiometricLogin(email: email)
+            showBiometricPrompt = false
+            Config.Logging.log("Biometric login enabled", level: .info)
         } catch {
-            errorMessage = "Biometric authentication failed"
-            Config.Logging.log("Biometric auth failed: \(error)", level: .error)
-            return false
+            errorMessage = "Failed to enable biometric login"
+            Config.Logging.log("Enable biometric failed: \(error)", level: .error)
         }
     }
     
-    /// Get biometric type available on device
-    func biometricType() -> LABiometryType {
-        let context = LAContext()
-        _ = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
-        return context.biometryType
+    /// Skip biometric enrollment
+    func skipBiometricEnrollment() {
+        biometricManager.markPromptShown()
+        showBiometricPrompt = false
     }
     
-    // MARK: - Register Methods
+    // MARK: - Register
     
     /// Validate registration form
-    private func validateRegisterForm() -> Bool {
+    /// - Returns: Boolean indicating if form is valid
+    func validateRegisterForm() -> Bool {
         var isValid = true
+        
+        // Full name validation
+        let nameResult = ValidationHelper.validateFullName(registerFullName)
+        if !nameResult.isValid {
+            registerFullNameError = nameResult.errorMessage
+            isValid = false
+        } else {
+            registerFullNameError = nil
+        }
         
         // Email validation
         let emailResult = ValidationHelper.validateEmail(registerEmail)
@@ -225,89 +324,43 @@ class AuthViewModel: ObservableObject {
             registerConfirmPasswordError = nil
         }
         
+        // Terms acceptance
+        if !acceptedTerms {
+            errorMessage = "Please accept the Terms & Conditions"
+            isValid = false
+        }
+        
         return isValid
-    }
-    
-    /// Calculate password strength
-    func getPasswordStrength(_ password: String) -> PasswordStrength {
-        return PasswordStrength.calculate(password)
     }
     
     /// Register new user
     func register() async {
-        clearErrors()
-        
         guard validateRegisterForm() else { return }
         
         isLoading = true
+        errorMessage = nil
         
         do {
             let response = try await authService.register(
                 email: registerEmail.trimmingCharacters(in: .whitespaces),
                 password: registerPassword,
-                firstName: registerFirstName.isEmpty ? nil : registerFirstName.trimmingCharacters(in: .whitespaces),
-                lastName: registerLastName.isEmpty ? nil : registerLastName.trimmingCharacters(in: .whitespaces)
+                fullName: registerFullName.trimmingCharacters(in: .whitespaces)
             )
             
             user = response.user
             isAuthenticated = true
-            successMessage = "Account created successfully!"
+            
+            // Prompt for biometric enrollment if available
+            if biometricManager.shouldPromptForEnrollment() {
+                showBiometricPrompt = true
+            }
             
             // Clear form
             clearRegisterForm()
             
-            Config.Logging.log("User registered: \(response.user.email)", level: .info)
-            
         } catch {
-            handleAuthError(error)
+            errorMessage = NetworkManager.shared.friendlyErrorMessage(error)
             Config.Logging.log("Registration failed: \(error)", level: .error)
-        }
-        
-        isLoading = false
-    }
-    
-    // MARK: - Forgot Password Methods
-    
-    /// Validate forgot password form
-    private func validateForgotPasswordForm() -> Bool {
-        var isValid = true
-        
-        if forgotPasswordEmail.isEmpty {
-            forgotPasswordEmailError = "Email is required"
-            isValid = false
-        } else {
-            let emailResult = ValidationHelper.validateEmail(forgotPasswordEmail)
-            if !emailResult.isValid {
-                forgotPasswordEmailError = "Please enter a valid email"
-                isValid = false
-            } else {
-                forgotPasswordEmailError = nil
-            }
-        }
-        
-        return isValid
-    }
-    
-    /// Send password reset email
-    func resetPassword() async {
-        clearErrors()
-        
-        guard validateForgotPasswordForm() else { return }
-        
-        isLoading = true
-        
-        do {
-            let request = ResetPasswordRequest(email: forgotPasswordEmail)
-            try await authService.resetPassword(request)
-            
-            successMessage = "Password reset link sent to your email"
-            clearForgotPasswordForm()
-            
-            Config.Logging.log("Password reset requested for: \(forgotPasswordEmail)", level: .info)
-            
-        } catch {
-            handleAuthError(error)
-            Config.Logging.log("Password reset failed: \(error)", level: .error)
         }
         
         isLoading = false
@@ -320,52 +373,17 @@ class AuthViewModel: ObservableObject {
         Task {
             do {
                 try await authService.logout()
-                
-                // Clear state
-                user = nil
-                isAuthenticated = false
-                clearAllForms()
-                
-                Config.Logging.log("User logged out successfully", level: .info)
-                
             } catch {
-                // Even if API call fails, clear local state
-                user = nil
-                isAuthenticated = false
-                clearAllForms()
-                
-                Config.Logging.log("Logout error (local state cleared): \(error)", level: .warning)
+                Config.Logging.log("Logout error: \(error)", level: .warning)
             }
+            
+            user = nil
+            isAuthenticated = false
+            clearAllForms()
         }
     }
     
-    // MARK: - Error Handling
-    
-    /// Handle authentication errors with user-friendly messages
-    private func handleAuthError(_ error: Error) {
-        if let apiError = error as? APIError {
-            switch apiError {
-            case .unauthorized:
-                errorMessage = "Invalid email or password"
-            case .forbidden:
-                errorMessage = "You don't have permission to perform this action"
-            case .notFound:
-                errorMessage = "Requested resource not found"
-            case .validationError(let message):
-                errorMessage = message
-            case .networkError:
-                errorMessage = "Network error. Please check your connection."
-            case .serverError:
-                errorMessage = "Server error. Please try again later."
-            default:
-                errorMessage = networkManager.friendlyErrorMessage(error)
-            }
-        } else {
-            errorMessage = "An unexpected error occurred. Please try again."
-        }
-    }
-    
-    // MARK: - Form Clearing
+    // MARK: - Form Management
     
     /// Clear login form
     private func clearLoginForm() {
@@ -375,94 +393,30 @@ class AuthViewModel: ObservableObject {
         loginPasswordError = nil
     }
     
-    /// Clear register form
+    /// Clear registration form
     private func clearRegisterForm() {
-        registerFirstName = ""
-        registerLastName = ""
         registerEmail = ""
         registerPassword = ""
         registerConfirmPassword = ""
+        registerFullName = ""
+        acceptedTerms = false
         registerEmailError = nil
         registerPasswordError = nil
         registerConfirmPasswordError = nil
-    }
-    
-    /// Clear forgot password form
-    private func clearForgotPasswordForm() {
-        forgotPasswordEmail = ""
-        forgotPasswordEmailError = nil
+        registerFullNameError = nil
     }
     
     /// Clear all forms
     private func clearAllForms() {
         clearLoginForm()
         clearRegisterForm()
-        clearForgotPasswordForm()
-    }
-    
-    /// Clear all errors
-    func clearErrors() {
         errorMessage = nil
-        successMessage = nil
-        loginEmailError = nil
-        loginPasswordError = nil
-        registerEmailError = nil
-        registerPasswordError = nil
-        registerConfirmPasswordError = nil
-        forgotPasswordEmailError = nil
     }
     
-    /// Clear single error message
+    // MARK: - Error Handling
+    
+    /// Clear error message
     func clearError() {
         errorMessage = nil
-        successMessage = nil
-    }
-}
-
-// MARK: - Password Strength
-enum PasswordStrength {
-    case weak, medium, strong
-    
-    var bars: Int {
-        switch self {
-        case .weak: return 1
-        case .medium: return 2
-        case .strong: return 3
-        }
-    }
-    
-    var color: Color {
-        switch self {
-        case .weak: return .error
-        case .medium: return Color.orange
-        case .strong: return .secondary
-        }
-    }
-    
-    var text: String {
-        switch self {
-        case .weak: return "Weak password"
-        case .medium: return "Medium password"
-        case .strong: return "Strong password"
-        }
-    }
-    
-    static func calculate(_ password: String) -> PasswordStrength {
-        var score = 0
-        
-        // Length checks
-        if password.count >= 8 { score += 1 }
-        if password.count >= 12 { score += 1 }
-        
-        // Character variety checks
-        if password.rangeOfCharacter(from: .uppercaseLetters) != nil { score += 1 }
-        if password.rangeOfCharacter(from: .lowercaseLetters) != nil { score += 1 }
-        if password.rangeOfCharacter(from: .decimalDigits) != nil { score += 1 }
-        if password.rangeOfCharacter(from: CharacterSet(charactersIn: "!@#$%^&*()_+-=[]{}|;:,.<>?")) != nil { score += 1 }
-        
-        // Determine strength
-        if score <= 2 { return .weak }
-        if score <= 4 { return .medium }
-        return .strong
     }
 }

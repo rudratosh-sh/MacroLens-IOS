@@ -55,6 +55,7 @@ struct Constants {
         static let spacing24: CGFloat = 24
         static let spacing32: CGFloat = 32
         static let spacing40: CGFloat = 40
+        static let spacing48: CGFloat = 48
         static let spacing64: CGFloat = 64
         
         // Corner Radius

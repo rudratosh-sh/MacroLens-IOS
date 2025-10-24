@@ -2,288 +2,262 @@
 //  RegisterView.swift
 //  MacroLens
 //
-//  Path: MacroLens/Views/Auth/RegisterView.swift
-//
 
 import SwiftUI
 
 struct RegisterView: View {
     
-    @EnvironmentObject var viewModel: AuthViewModel
+    // MARK: - Environment
     @Environment(\.dismiss) private var dismiss
-    @State private var acceptedTerms = false
-    @State private var showTermsAlert = false
+    @EnvironmentObject var viewModel: AuthViewModel
     
+    // MARK: - Body
     var body: some View {
-        ScrollView {
-            VStack(spacing: 32) {
-                // Header
-                VStack(spacing: 12) {
-                    Text("Hey there,")
-                        .font(.bodyLarge)
-                        .foregroundColor(.textSecondary)
-                    
-                    Text("Create an Account")
-                        .font(.displayMedium)
-                        .foregroundColor(.textPrimary)
-                }
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.top, 60)
+        NavigationView {
+            ZStack {
+                Color.backgroundPrimary.ignoresSafeArea()
                 
-                // Form
-                VStack(spacing: 16) {
-                    // First Name
-                    MLTextField(
-                        title: "",
-                        placeholder: "First Name",
-                        icon: "person",
-                        type: .text,
-                        text: $viewModel.registerFirstName
-                    )
-                    
-                    // Last Name
-                    MLTextField(
-                        title: "",
-                        placeholder: "Last Name",
-                        icon: "person.fill",
-                        type: .text,
-                        text: $viewModel.registerLastName
-                    )
-                    
-                    // Email
-                    MLTextField(
-                        title: "",
-                        placeholder: "Email",
-                        icon: "envelope",
-                        type: .email,
-                        text: $viewModel.registerEmail,
-                        errorMessage: viewModel.registerEmailError
-                    )
-                    
-                    // Password
-                    MLTextField(
-                        title: "",
-                        placeholder: "Password",
-                        icon: "lock",
-                        type: .password,
-                        text: $viewModel.registerPassword,
-                        errorMessage: viewModel.registerPasswordError
-                    )
-                    
-                    // Password Strength Indicator (if password not empty)
-                    if !viewModel.registerPassword.isEmpty {
-                        PasswordStrengthIndicator(
-                            strength: viewModel.getPasswordStrength(viewModel.registerPassword)
-                        )
-                        .padding(.horizontal, 4)
-                    }
-                }
-                .padding(.horizontal, 30)
-                
-                // Terms Checkbox
-                HStack(spacing: 12) {
-                    Button(action: {
-                        acceptedTerms.toggle()
-                    }) {
-                        Image(systemName: acceptedTerms ? "checkmark.square.fill" : "square")
-                            .foregroundColor(acceptedTerms ? .primaryStart : .gray2)
-                            .font(.system(size: 20))
-                    }
-                    
-                    HStack(spacing: 4) {
-                        Text("By continuing you accept our")
-                            .font(.captionRegular)
-                            .foregroundColor(.textSecondary)
+                ScrollView {
+                    VStack(spacing: Constants.UI.spacing20) {
                         
-                        Button(action: {
-                            // TODO: Show Privacy Policy
-                        }) {
-                            Text("Privacy Policy")
-                                .font(.captionMedium)
+                        // Header
+                        VStack(spacing: Constants.UI.spacing8) {
+                            Text("Create Account")
+                                .font(.displayMedium)
+                                .foregroundColor(.textPrimary)
+                            
+                            Text("Start your macro tracking journey")
+                                .font(.bodyMedium)
                                 .foregroundColor(.textSecondary)
-                                .underline()
+                        }
+                        .padding(.top, Constants.UI.spacing24)
+                        
+                        // Register Form
+                        VStack(spacing: Constants.UI.spacing12) {
+                            
+                            // Full Name Field
+                            MLTextField(
+                                title: "Full Name",
+                                placeholder: "John Doe",
+                                icon: "person.fill",
+                                text: $viewModel.registerFullName,
+                                errorMessage: viewModel.registerFullNameError
+                            )
+                            
+                            // Email Field
+                            MLTextField.email(
+                                text: $viewModel.registerEmail,
+                                errorMessage: viewModel.registerEmailError
+                            )
+                            
+                            // Password Field with Strength
+                            VStack(alignment: .leading, spacing: Constants.UI.spacing4) {
+                                MLTextField.password(
+                                    text: $viewModel.registerPassword,
+                                    errorMessage: viewModel.registerPasswordError,
+                                    helperText: nil
+                                )
+                                
+                                if !viewModel.registerPassword.isEmpty {
+                                    VStack(alignment: .leading, spacing: Constants.UI.spacing4) {
+                                        GeometryReader { geometry in
+                                            ZStack(alignment: .leading) {
+                                                RoundedRectangle(cornerRadius: 2)
+                                                    .fill(Color.border)
+                                                    .frame(height: 4)
+                                                
+                                                RoundedRectangle(cornerRadius: 2)
+                                                    .fill(viewModel.passwordStrength.color)
+                                                    .frame(width: geometry.size.width * viewModel.passwordStrength.progress, height: 4)
+                                                    .animation(.easeInOut(duration: 0.3), value: viewModel.passwordStrength)
+                                            }
+                                        }
+                                        .frame(height: 4)
+                                        
+                                        Text(viewModel.passwordStrength.text)
+                                            .font(.captionMedium)
+                                            .foregroundColor(viewModel.passwordStrength.color)
+                                    }
+                                    .padding(.horizontal, Constants.UI.spacing4)
+                                }
+                                
+                                Text("Min 8 characters, uppercase, lowercase, number, special char")
+                                    .font(.captionSmall)
+                                    .foregroundColor(.textTertiary)
+                                    .padding(.horizontal, Constants.UI.spacing4)
+                                    .padding(.top, Constants.UI.spacing4)
+                            }
+                            
+                            // Confirm Password Field
+                            MLTextField.password(
+                                title: "Confirm Password",
+                                placeholder: "Re-enter your password",
+                                text: $viewModel.registerConfirmPassword,
+                                errorMessage: viewModel.registerConfirmPasswordError
+                            )
+                        }
+                        .padding(.horizontal, Constants.UI.spacing24)
+                        
+                        // Terms & Conditions Checkbox
+                        HStack(alignment: .top, spacing: Constants.UI.spacing12) {
+                            Button(action: { viewModel.acceptedTerms.toggle() }) {
+                                Image(systemName: viewModel.acceptedTerms ? "checkmark.square.fill" : "square")
+                                    .font(.iconMedium)
+                                    .foregroundColor(viewModel.acceptedTerms ? .primaryStart : .textSecondary)
+                            }
+                            
+                            VStack(alignment: .leading, spacing: Constants.UI.spacing4) {
+                                Text("I agree to the ")
+                                    .font(.captionMedium)
+                                    .foregroundColor(.textSecondary)
+                                + Text("Terms of Service")
+                                    .font(.captionMedium)
+                                    .foregroundColor(.primaryStart)
+                                    .underline()
+                                + Text(" and ")
+                                    .font(.captionMedium)
+                                    .foregroundColor(.textSecondary)
+                                + Text("Privacy Policy")
+                                    .font(.captionMedium)
+                                    .foregroundColor(.primaryStart)
+                                    .underline()
+                            }
+                            
+                            Spacer()
+                        }
+                        .padding(.horizontal, Constants.UI.spacing24)
+                        .padding(.top, Constants.UI.spacing4)
+                        
+                        // Error Message
+                        if let errorMessage = viewModel.errorMessage {
+                            HStack(spacing: Constants.UI.spacing8) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                Text(errorMessage)
+                                    .font(.bodyMedium)
+                            }
+                            .foregroundColor(.error)
+                            .padding(.horizontal, Constants.UI.spacing24)
                         }
                         
-                        Text("and")
-                            .font(.captionRegular)
-                            .foregroundColor(.textSecondary)
+                        // Create Account Button
+                        MLButton.primary(
+                            "Create Account",
+                            icon: "checkmark.circle.fill",
+                            isLoading: viewModel.isLoading
+                        ) {
+                            Task { await viewModel.register() }
+                        }
+                        .disabled(!isFormValid)
+                        .opacity(isFormValid ? 1.0 : 0.6)
+                        .padding(.horizontal, Constants.UI.spacing24)
+                        .padding(.top, Constants.UI.spacing8)
                         
-                        Button(action: {
-                            // TODO: Show Terms of Use
-                        }) {
-                            Text("Term of Use")
-                                .font(.captionMedium)
+                        // Divider
+                        HStack(spacing: Constants.UI.spacing12) {
+                            Rectangle()
+                                .fill(Color.border)
+                                .frame(height: Constants.UI.borderWidthThin)
+                            Text("OR")
+                                .font(.labelSmall)
+                                .foregroundColor(.textTertiary)
+                            Rectangle()
+                                .fill(Color.border)
+                                .frame(height: Constants.UI.borderWidthThin)
+                        }
+                        .padding(.horizontal, Constants.UI.spacing24)
+                        .padding(.vertical, Constants.UI.spacing8)
+                        
+                        // Social Sign Up Buttons
+                        VStack(spacing: Constants.UI.spacing12) {
+                            Button(action: { /* Google Sign Up */ }) {
+                                HStack(spacing: Constants.UI.spacing8) {
+                                    Image(systemName: "g.circle.fill")
+                                        .font(.iconMedium)
+                                    Text("Continue with Google")
+                                        .font(.buttonSmall)
+                                }
+                                .foregroundColor(.primaryStart)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: Constants.UI.buttonHeightMedium)
+                                .background(Color.backgroundSecondary)
+                                .cornerRadius(Constants.UI.cornerRadiusMedium)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: Constants.UI.cornerRadiusMedium)
+                                        .stroke(Color.border, lineWidth: Constants.UI.borderWidthThin)
+                                )
+                            }
+                            .padding(.horizontal, Constants.UI.spacing24)
+                            
+                            Button(action: { /* Apple Sign Up */ }) {
+                                HStack(spacing: Constants.UI.spacing8) {
+                                    Image(systemName: "apple.logo")
+                                        .font(.iconMedium)
+                                    Text("Continue with Apple")
+                                        .font(.buttonSmall)
+                                }
+                                .foregroundColor(.primaryStart)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: Constants.UI.buttonHeightMedium)
+                                .background(Color.backgroundSecondary)
+                                .cornerRadius(Constants.UI.cornerRadiusMedium)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: Constants.UI.cornerRadiusMedium)
+                                        .stroke(Color.border, lineWidth: Constants.UI.borderWidthThin)
+                                )
+                            }
+                            .padding(.horizontal, Constants.UI.spacing24)
+                        }
+                        
+                        // Login Link
+                        HStack(spacing: Constants.UI.spacing4) {
+                            Text("Already have an account?")
+                                .font(.bodyMedium)
                                 .foregroundColor(.textSecondary)
-                                .underline()
+                            
+                            Button(action: { dismiss() }) {
+                                Text("Sign In")
+                                    .font(.labelLarge)
+                                    .foregroundColor(.primaryStart)
+                            }
                         }
-                    }
-                    
-                    Spacer()
-                }
-                .padding(.horizontal, 30)
-                
-                // Error Message
-                if let errorMessage = viewModel.errorMessage {
-                    HStack(spacing: 8) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                        Text(errorMessage)
-                            .font(.captionMedium)
-                    }
-                    .foregroundColor(.error)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.error.opacity(0.1))
-                    .cornerRadius(12)
-                    .padding(.horizontal, 30)
-                }
-                
-                // Register Button
-                MLButton.primary(
-                    "Register",
-                    size: .large,
-                    isLoading: viewModel.isLoading
-                ) {
-                    if acceptedTerms {
-                        Task {
-                            await viewModel.register()
-                        }
-                    } else {
-                        showTermsAlert = true
+                        .padding(.top, Constants.UI.spacing8)
+                        .padding(.bottom, Constants.UI.spacing24)
                     }
                 }
-                .padding(.horizontal, 30)
-                .padding(.top, 80)
-                
-                // Divider
-                HStack(spacing: 16) {
-                    Rectangle()
-                        .fill(Color.gray3)
-                        .frame(height: 1)
-                    
-                    Text("Or")
-                        .font(.bodyMedium)
-                        .foregroundColor(.textSecondary)
-                    
-                    Rectangle()
-                        .fill(Color.gray3)
-                        .frame(height: 1)
-                }
-                .padding(.horizontal, 30)
-                .padding(.top, 16)
-                
-                // Social Login Buttons
-                HStack(spacing: 16) {
-                    // Google Button
-                    Button(action: {
-                        // TODO: Implement Google Sign In
-                    }) {
-                        Image(systemName: "g.circle.fill") // Replace with Google icon
-                            .font(.system(size: 20))
-                            .frame(width: 60, height: 60)
-                            .background(Color.white)
-                            .cornerRadius(16)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(Color.border, lineWidth: 1)
-                            )
-                    }
-                    
-                    // Facebook Button
-                    Button(action: {
-                        // TODO: Implement Facebook Sign In
-                    }) {
-                        Image(systemName: "f.circle.fill") // Replace with Facebook icon
-                            .font(.system(size: 20))
-                            .foregroundColor(.blue)
-                            .frame(width: 60, height: 60)
-                            .background(Color.white)
-                            .cornerRadius(16)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(Color.border, lineWidth: 1)
-                            )
-                    }
-                }
-                .padding(.top, 16)
-                
-                // Login Link
-                HStack(spacing: 4) {
-                    Text("Already have an account?")
-                        .font(.bodyMedium)
-                        .foregroundColor(.textSecondary)
-                    
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        Text("Login")
-                            .font(.bodyMedium)
-                            .foregroundColor(.primaryStart)
-                    }
-                }
-                .padding(.top, 24)
-                .padding(.bottom, 40)
+                .hideScrollIndicatorsIfAvailable()
             }
-        }
-        .background(Color.white)
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    dismiss()
-                }) {
-                    Image(systemName: "arrow.left")
-                        .foregroundColor(.textPrimary)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.textPrimary)
+                            .font(.iconMedium)
+                    }
                 }
             }
-        }
-        .alert("Accept Terms", isPresented: $showTermsAlert) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            Text("Please accept the Privacy Policy and Terms of Use to continue")
-        }
-        .onAppear {
-            viewModel.clearErrors()
         }
     }
-}
-
-// MARK: - Password Strength Indicator
-struct PasswordStrengthIndicator: View {
-    let strength: PasswordStrength
     
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 4) {
-                ForEach(0..<3, id: \.self) { index in
-                    Rectangle()
-                        .fill(index < strength.bars ? strength.color : Color.gray3)
-                        .frame(height: 4)
-                        .cornerRadius(2)
-                }
-            }
-            
-            Text(strength.text)
-                .font(.captionMedium)
-                .foregroundColor(strength.color)
-        }
+    // MARK: - Computed Properties
+    private var isFormValid: Bool {
+        return !viewModel.registerFullName.isEmpty &&
+               !viewModel.registerEmail.isEmpty &&
+               !viewModel.registerPassword.isEmpty &&
+               !viewModel.registerConfirmPassword.isEmpty &&
+               viewModel.acceptedTerms &&
+               viewModel.registerFullNameError == nil &&
+               viewModel.registerEmailError == nil &&
+               viewModel.registerPasswordError == nil &&
+               viewModel.registerConfirmPasswordError == nil
     }
 }
 
 // MARK: - Preview
 struct RegisterView_Previews: PreviewProvider {
     static var previews: some View {
-        Group {
-            if #available(iOS 16.0, *) {
-                NavigationStack {
-                    RegisterView()
-                        .environmentObject(AuthViewModel())
-                }
-            } else {
-                NavigationView {
-                    RegisterView()
-                        .environmentObject(AuthViewModel())
-                }
-            }
-        }
+        RegisterView()
+            .environmentObject(AuthViewModel())
+            .previewDevice("iPhone 16")
     }
 }
