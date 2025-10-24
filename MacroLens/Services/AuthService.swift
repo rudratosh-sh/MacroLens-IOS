@@ -117,7 +117,6 @@ final class AuthService: @unchecked Sendable {
         guard let storedRefreshToken = try? keychain.get(Config.StorageKeys.refreshToken) else {
             throw BiometricError.notEnrolled
         }
-        _ = storedRefreshToken // silence unused variable if not used directly
         
         // Refresh token to get new access token
         let response = try await refreshToken()
@@ -136,8 +135,7 @@ final class AuthService: @unchecked Sendable {
     /// Enable biometric login after successful password login
     /// - Parameter email: User email to store
     /// - Throws: KeychainAccess.Status on failure
-    @MainActor
-    func enableBiometricLogin(email: String) throws {
+    @MainActor func enableBiometricLogin(email: String) throws {
         try biometricManager.enableBiometric(email: email)
     }
     
@@ -158,7 +156,7 @@ final class AuthService: @unchecked Sendable {
         }
         
         // Clear local auth data
-        clearAuthData()
+        await clearAuthData()
         
         Config.Logging.log("User logged out successfully", level: .info)
     }
@@ -311,16 +309,14 @@ final class AuthService: @unchecked Sendable {
     }
     
     /// Clear all authentication data
-    func clearAuthData() {
+    @MainActor func clearAuthData() {
         try? keychain.remove(Config.StorageKeys.accessToken)
         try? keychain.remove(Config.StorageKeys.refreshToken)
         try? keychain.remove(Config.StorageKeys.userId)
         try? keychain.remove(Config.StorageKeys.userEmail)
         
-        // Clear biometric data (must run on main actor)
-        Task { @MainActor in
-            biometricManager.disableBiometric()
-        }
+        // Clear biometric data
+        biometricManager.disableBiometric()
         
         // Clear API client tokens
         APIClient.shared.clearTokens()

@@ -224,8 +224,12 @@ struct LoginView: View {
             }
             .navigationBarHidden(true)
             .sheet(isPresented: $showRegisterView) {
-                RegisterView()
-                    .environmentObject(viewModel)
+                if #available(iOS 16.0, *) {
+                    RegisterView()
+                        .environmentObject(viewModel)
+                } else {
+                    // Fallback on earlier versions
+                }
             }
             .sheet(isPresented: $showForgotPassword) {
                 ForgotPasswordView()
