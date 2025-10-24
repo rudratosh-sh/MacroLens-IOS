@@ -193,12 +193,12 @@ final class AuthViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            let response = try await authService.login(
+            let (user, _) = try await authService.login(
                 email: loginEmail.trimmingCharacters(in: .whitespaces),
                 password: loginPassword
             )
             
-            user = response.user
+            self.user = user
             isAuthenticated = true
             
             // Prompt for biometric enrollment if available
@@ -237,9 +237,9 @@ final class AuthViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            let response = try await authService.loginWithBiometrics()
+            let (user, _) = try await authService.loginWithBiometrics()
             
-            user = response.user
+            self.user = user
             isAuthenticated = true
             
             Config.Logging.log("Biometric login successful", level: .info)
@@ -341,13 +341,13 @@ final class AuthViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            let response = try await authService.register(
+            let (user, _) = try await authService.register(
                 email: registerEmail.trimmingCharacters(in: .whitespaces),
                 password: registerPassword,
                 fullName: registerFullName.trimmingCharacters(in: .whitespaces)
             )
             
-            user = response.user
+            self.user = user
             isAuthenticated = true
             
             // Prompt for biometric enrollment if available

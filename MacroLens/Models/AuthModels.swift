@@ -26,21 +26,32 @@ struct RegisterRequest: Codable, Sendable {
     }
 }
 
-// MARK: - Auth Response
-struct AuthResponse: Codable, Sendable {
-    let user: User
+// MARK: - Token
+struct Token: Codable, Sendable {
     let accessToken: String
     let refreshToken: String
     let tokenType: String
     let expiresIn: Int
     
     enum CodingKeys: String, CodingKey {
-        case user
         case accessToken = "access_token"
         case refreshToken = "refresh_token"
         case tokenType = "token_type"
         case expiresIn = "expires_in"
     }
+}
+
+// MARK: - Auth Data
+struct AuthData: Codable, Sendable {
+    let user: User
+    let tokens: Token
+}
+
+// MARK: - Auth Response (matches backend)
+struct AuthResponse: Codable, Sendable {
+    let success: Bool
+    let message: String?
+    let data: AuthData
 }
 
 // MARK: - Token Refresh Request
@@ -52,19 +63,16 @@ struct RefreshTokenRequest: Codable, Sendable {
     }
 }
 
+// MARK: - Token Data
+struct TokenData: Codable, Sendable {
+    let tokens: Token
+}
+
 // MARK: - Token Response
 struct TokenResponse: Codable, Sendable {
-    let accessToken: String
-    let refreshToken: String
-    let tokenType: String
-    let expiresIn: Int
-    
-    enum CodingKeys: String, CodingKey {
-        case accessToken = "access_token"
-        case refreshToken = "refresh_token"
-        case tokenType = "token_type"
-        case expiresIn = "expires_in"
-    }
+    let success: Bool
+    let message: String?
+    let data: TokenData
 }
 
 // MARK: - Verify Email Request
@@ -96,16 +104,5 @@ struct ChangePasswordRequest: Codable, Sendable {
     enum CodingKeys: String, CodingKey {
         case currentPassword = "current_password"
         case newPassword = "new_password"
-    }
-}
-
-// MARK: - Biometric Login Request
-struct BiometricLoginRequest: Codable, Sendable {
-    let email: String
-    let biometricToken: String
-    
-    enum CodingKeys: String, CodingKey {
-        case email
-        case biometricToken = "biometric_token"
     }
 }

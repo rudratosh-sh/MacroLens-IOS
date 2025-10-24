@@ -15,7 +15,7 @@ struct User: Codable, Identifiable,Sendable {
     let lastName: String?
     let username: String?
     let profileImageUrl: String?
-    let isEmailVerified: Bool
+    let isVerified: Bool
     let createdAt: Date
     let updatedAt: Date
     
@@ -41,7 +41,7 @@ struct User: Codable, Identifiable,Sendable {
         case lastName = "last_name"
         case username
         case profileImageUrl = "profile_image_url"
-        case isEmailVerified = "is_email_verified"
+        case isVerified = "is_verified"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
         case age

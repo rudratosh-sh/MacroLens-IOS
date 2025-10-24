@@ -40,7 +40,7 @@ struct LoginView: View {
                         
                         // Logo & Welcome
                         VStack(spacing: Constants.UI.spacing12) {
-                            Image("logo")
+                            Image("macroLensLogo")
                                 .resizable()
                                 .scaledToFit()
                                 .frame(height: 80)

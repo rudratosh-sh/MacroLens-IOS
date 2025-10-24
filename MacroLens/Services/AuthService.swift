@@ -37,17 +37,11 @@ final class AuthService: @unchecked Sendable {
         email: String,
         password: String,
         fullName: String
-    ) async throws -> AuthResponse {
-        let request = RegisterRequest(
-            email: email,
-            password: password,
-            fullName: fullName
-        )
-        
+    ) async throws -> (User, Token) {
         let parameters: [String: Any] = [
-            "email": request.email,
-            "password": request.password,
-            "full_name": request.fullName
+            "email": email,
+            "password": password,
+            "full_name": fullName
         ]
         
         let response: AuthResponse = try await networkManager.post(
@@ -57,15 +51,15 @@ final class AuthService: @unchecked Sendable {
         
         // Save tokens
         try saveTokens(
-            accessToken: response.accessToken,
-            refreshToken: response.refreshToken,
-            userId: response.user.id,
-            userEmail: response.user.email
+            accessToken: response.data.tokens.accessToken,
+            refreshToken: response.data.tokens.refreshToken,
+            userId: response.data.user.id,
+            userEmail: response.data.user.email
         )
         
-        Config.Logging.log("User registered successfully: \(response.user.email)", level: .info)
+        Config.Logging.log("User registered successfully: \(response.data.user.email)", level: .info)
         
-        return response
+        return (response.data.user, response.data.tokens)
     }
     
     // MARK: - Login
@@ -79,7 +73,7 @@ final class AuthService: @unchecked Sendable {
     func login(
         email: String,
         password: String
-    ) async throws -> AuthResponse {
+    ) async throws -> (User, Token) {
         let parameters: [String: Any] = [
             "email": email,
             "password": password
@@ -92,15 +86,15 @@ final class AuthService: @unchecked Sendable {
         
         // Save tokens
         try saveTokens(
-            accessToken: response.accessToken,
-            refreshToken: response.refreshToken,
-            userId: response.user.id,
-            userEmail: response.user.email
+            accessToken: response.data.tokens.accessToken,
+            refreshToken: response.data.tokens.refreshToken,
+            userId: response.data.user.id,
+            userEmail: response.data.user.email
         )
         
-        Config.Logging.log("User logged in successfully: \(response.user.email)", level: .info)
+        Config.Logging.log("User logged in successfully: \(response.data.user.email)", level: .info)
         
-        return response
+        return (response.data.user, response.data.tokens)
     }
     
     // MARK: - Biometric Login
@@ -108,28 +102,21 @@ final class AuthService: @unchecked Sendable {
     /// Login using biometric authentication
     /// - Returns: AuthResponse with user data and tokens
     /// - Throws: BiometricError or APIError
-    func loginWithBiometrics() async throws -> AuthResponse {
+    func loginWithBiometrics() async throws -> (User, Token) {
         // Authenticate with biometrics
         let email = try await biometricManager.authenticateWithBiometrics()
         
-        // For biometric login, we need to use stored refresh token or session
-        // Since we don't store password, we use existing tokens
+        // Use stored refresh token
         guard let storedRefreshToken = try? keychain.get(Config.StorageKeys.refreshToken) else {
             throw BiometricError.notEnrolled
         }
         
         // Refresh token to get new access token
-        let response = try await refreshToken()
+        let (user, tokens) = try await refreshToken()
         
         Config.Logging.log("User logged in with biometrics: \(email)", level: .info)
         
-        return AuthResponse(
-            user: try await getCurrentUser(),
-            accessToken: response.accessToken,
-            refreshToken: response.refreshToken,
-            tokenType: response.tokenType,
-            expiresIn: response.expiresIn
-        )
+        return (user, tokens)
     }
     
     /// Enable biometric login after successful password login
@@ -166,7 +153,7 @@ final class AuthService: @unchecked Sendable {
     /// Refresh access token using refresh token
     /// - Returns: New token response
     /// - Throws: APIError if refresh fails
-    func refreshToken() async throws -> TokenResponse {
+    func refreshToken() async throws -> (User, Token) {
         guard let refreshToken = try? keychain.get(Config.StorageKeys.refreshToken) else {
             throw APIError.unauthorized
         }
@@ -182,13 +169,14 @@ final class AuthService: @unchecked Sendable {
         
         // Update tokens
         try saveTokens(
-            accessToken: response.accessToken,
-            refreshToken: response.refreshToken
+            accessToken: response.data.tokens.accessToken,
+            refreshToken: response.data.tokens.refreshToken
         )
         
         Config.Logging.log("Access token refreshed", level: .info)
         
-        return response
+        let user = try await getCurrentUser()
+        return (user, response.data.tokens)
     }
     
     // MARK: - Email Verification
