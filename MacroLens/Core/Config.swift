@@ -63,7 +63,7 @@ struct Config {
         static let resetPassword = "/auth/reset-password"
         
         // Users
-        static let userProfile = "/users/profile"
+        static let userProfile = "/auth/me"
         static let updateProfile = "/users/profile"
         static let deleteAccount = "/users/account"
         static let userPreferences = "/users/preferences"

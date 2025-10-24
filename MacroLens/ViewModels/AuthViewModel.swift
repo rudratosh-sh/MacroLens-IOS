@@ -232,27 +232,32 @@ final class AuthViewModel: ObservableObject {
     }
     
     /// Login with biometric authentication
-    func loginWithBiometrics() async {
-        isLoading = true
-        errorMessage = nil
+    func loginWithBiometrics() async -> Bool {
+        let context = LAContext()
+        var error: NSError?
         
-        do {
-            let (user, _) = try await authService.loginWithBiometrics()
-            
-            self.user = user
-            isAuthenticated = true
-            
-            Config.Logging.log("Biometric login successful", level: .info)
-            
-        } catch let error as BiometricError {
-            errorMessage = error.localizedDescription
-            Config.Logging.log("Biometric login failed: \(error)", level: .error)
-        } catch {
-            errorMessage = "Biometric authentication failed. Please use password"
-            Config.Logging.log("Biometric login error: \(error)", level: .error)
+        guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
+            // ❌ Don't set errorMessage here - this is shown on login screen
+            Config.Logging.log("Biometric not available: \(error?.localizedDescription ?? "unknown")", level: .warning)
+            return false
         }
         
-        isLoading = false
+        do {
+            let success = try await context.evaluatePolicy(
+                .deviceOwnerAuthenticationWithBiometrics,
+                localizedReason: "Login to MacroLens"
+            )
+            
+            if success {
+                await loadCurrentUser()
+            }
+            
+            return success
+        } catch {
+            // ❌ Don't set errorMessage here - only log
+            Config.Logging.log("Biometric authentication failed: \(error)", level: .warning)
+            return false
+        }
     }
     
     /// Enable biometric login for current user
@@ -367,19 +372,23 @@ final class AuthViewModel: ObservableObject {
     }
     
     // MARK: - Logout
-    
+
     /// Logout user
     func logout() {
         Task {
             do {
                 try await authService.logout()
+                Config.Logging.log("Logout successful", level: .info)
             } catch {
                 Config.Logging.log("Logout error: \(error)", level: .warning)
+                // Don't show error to user - always clear local data
             }
             
-            user = nil
-            isAuthenticated = false
-            clearAllForms()
+            await MainActor.run {
+                user = nil
+                isAuthenticated = false
+                clearAllForms()
+            }
         }
     }
     

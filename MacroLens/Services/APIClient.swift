@@ -212,8 +212,10 @@ class APIClient: @unchecked Sendable {
         _ response: DataResponse<APIResponse<T>, AFError>,
         continuation: CheckedContinuation<T, Error>
     ) {
+        
         switch response.result {
         case .success(let apiResponse):
+            
             if apiResponse.success, let data = apiResponse.data {
                 Config.Logging.log("API Success: \(response.request?.url?.absoluteString ?? "")", level: .info)
                 continuation.resume(returning: data)

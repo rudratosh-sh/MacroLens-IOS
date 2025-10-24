@@ -23,35 +23,6 @@ struct ContentView: View {
     }
 }
 
-// MARK: - Main Tab View (Placeholder)
-struct MainTabView: View {
-    
-    @EnvironmentObject var authViewModel: AuthViewModel
-    
-    var body: some View {
-        TabView {
-            // Home Tab
-            HomeTabPlaceholder()
-                .tabItem {
-                    Label("Home", systemImage: "house.fill")
-                }
-            
-            // Scan Tab
-            ScanTabPlaceholder()
-                .tabItem {
-                    Label("Scan", systemImage: "camera.fill")
-                }
-            
-            // Profile Tab
-            ProfileTabPlaceholder()
-                .tabItem {
-                    Label("Profile", systemImage: "person.fill")
-                }
-        }
-        .accentColor(.primaryStart)
-    }
-}
-
 // MARK: - Tab Placeholders
 struct HomeTabPlaceholder: View {
     var body: some View {
@@ -126,7 +97,7 @@ struct ProfileTabPlaceholder: View {
                                 .frame(width: 80, height: 80)
                                 .foregroundStyle(Color.primaryGradient)
                             
-                            Text(user.fullName)
+                            Text(user.fullName) 
                                 .font(.headlineLarge)
                                 .foregroundColor(.textPrimary)
                             

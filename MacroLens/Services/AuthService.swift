@@ -20,7 +20,8 @@ final class AuthService: @unchecked Sendable {
     private let networkManager = NetworkManager.shared
     private let keychain = Keychain(service: Config.App.bundleIdentifier)
     private let biometricManager = BiometricAuthManager.shared
-    
+    private struct EmptyResponse: Codable {}
+
     // MARK: - Initialization
     private init() {}
     
@@ -48,18 +49,18 @@ final class AuthService: @unchecked Sendable {
             endpoint: Config.Endpoints.register,
             parameters: parameters
         )
-        
+
         // Save tokens
         try saveTokens(
-            accessToken: response.data.tokens.accessToken,
-            refreshToken: response.data.tokens.refreshToken,
-            userId: response.data.user.id,
-            userEmail: response.data.user.email
+            accessToken: response.tokens.accessToken,     // ✅
+            refreshToken: response.tokens.refreshToken,   // ✅
+            userId: response.user.id,                      // ✅
+            userEmail: response.user.email                 // ✅
         )
         
-        Config.Logging.log("User registered successfully: \(response.data.user.email)", level: .info)
+        Config.Logging.log("User registered successfully: \(response.user.email)", level: .info)
         
-        return (response.data.user, response.data.tokens)
+        return (response.user, response.tokens)
     }
     
     // MARK: - Login
@@ -86,15 +87,16 @@ final class AuthService: @unchecked Sendable {
         
         // Save tokens
         try saveTokens(
-            accessToken: response.data.tokens.accessToken,
-            refreshToken: response.data.tokens.refreshToken,
-            userId: response.data.user.id,
-            userEmail: response.data.user.email
+            accessToken: response.tokens.accessToken,
+            refreshToken: response.tokens.refreshToken,
+            userId: response.user.id,
+            userEmail: response.user.email
         )
+
         
-        Config.Logging.log("User logged in successfully: \(response.data.user.email)", level: .info)
+        Config.Logging.log("User logged in successfully: \(response.user.email)", level: .info)
         
-        return (response.data.user, response.data.tokens)
+        return (response.user, response.tokens)
     }
     
     // MARK: - Biometric Login
@@ -133,7 +135,7 @@ final class AuthService: @unchecked Sendable {
     func logout() async throws {
         do {
             // Call backend logout endpoint
-            let _: [String: String] = try await networkManager.post(
+            let _: EmptyResponse = try await networkManager.post(
                 endpoint: Config.Endpoints.logout,
                 parameters: [:]
             )
@@ -166,17 +168,17 @@ final class AuthService: @unchecked Sendable {
             endpoint: Config.Endpoints.refreshToken,
             parameters: parameters
         )
-        
+
         // Update tokens
         try saveTokens(
-            accessToken: response.data.tokens.accessToken,
-            refreshToken: response.data.tokens.refreshToken
+            accessToken: response.tokens.accessToken,
+            refreshToken: response.tokens.refreshToken
         )
-        
+
         Config.Logging.log("Access token refreshed", level: .info)
-        
+
         let user = try await getCurrentUser()
-        return (user, response.data.tokens)
+        return (user, response.tokens)
     }
     
     // MARK: - Email Verification
@@ -304,7 +306,7 @@ final class AuthService: @unchecked Sendable {
         try? keychain.remove(Config.StorageKeys.userEmail)
         
         // Clear biometric data
-        biometricManager.disableBiometric()
+//        biometricManager.disableBiometric()
         
         // Clear API client tokens
         APIClient.shared.clearTokens()

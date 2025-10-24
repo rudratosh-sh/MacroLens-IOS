@@ -49,9 +49,8 @@ struct AuthData: Codable, Sendable {
 
 // MARK: - Auth Response (matches backend)
 struct AuthResponse: Codable, Sendable {
-    let success: Bool
-    let message: String?
-    let data: AuthData
+    let user: User
+    let tokens: Token
 }
 
 // MARK: - Token Refresh Request
@@ -70,9 +69,7 @@ struct TokenData: Codable, Sendable {
 
 // MARK: - Token Response
 struct TokenResponse: Codable, Sendable {
-    let success: Bool
-    let message: String?
-    let data: TokenData
+    let tokens: Token
 }
 
 // MARK: - Verify Email Request
