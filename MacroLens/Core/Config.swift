@@ -129,10 +129,18 @@ struct Config {
     
     // MARK: - Storage Keys
     struct StorageKeys {
+        // Authentication Tokens
         static let accessToken = "access_token"
         static let refreshToken = "refresh_token"
         static let userId = "user_id"
         static let userEmail = "user_email"
+        
+        // Biometric Authentication
+        static let biometricEnabled = "biometric_enabled"
+        static let biometricEmail = "biometric_email"
+        static let biometricPassword = "biometric_password"
+        
+        // App State
         static let onboardingCompleted = "onboarding_completed"
         static let healthKitAuthorized = "healthkit_authorized"
         static let notificationsEnabled = "notifications_enabled"

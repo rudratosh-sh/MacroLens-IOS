@@ -19,7 +19,7 @@ struct LoginView: View {
     @State private var showRegisterView = false
     @State private var showForgotPassword = false
     @State private var showPassword = false
-    
+
     // MARK: - Body
     var body: some View {
         NavigationView {
@@ -103,6 +103,12 @@ struct LoginView: View {
                         ) {
                             Task {
                                 await viewModel.login()
+                                // ✅ Show biometric prompt after successful login if available and not yet enabled
+                                if viewModel.isAuthenticated &&
+                                    viewModel.biometricType() != .none &&
+                                    !viewModel.canUseBiometric {
+                                    viewModel.showBiometricPrompt = true
+                                }
                             }
                         }
                         .disabled(!isFormValid)
@@ -234,9 +240,15 @@ struct LoginView: View {
             .sheet(isPresented: $showForgotPassword) {
                 ForgotPasswordView()
             }
+            // ✅ UPDATED: Biometric enrollment alert
             .alert("Enable \(viewModel.biometricDisplayName())?", isPresented: $viewModel.showBiometricPrompt) {
                 Button("Enable") {
-                    viewModel.enableBiometricLogin()
+                    Task {
+                        await viewModel.enableBiometric(
+                            email: viewModel.loginEmail,
+                            password: viewModel.loginPassword
+                        )
+                    }
                 }
                 Button("Not Now", role: .cancel) {
                     viewModel.skipBiometricEnrollment()

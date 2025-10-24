@@ -186,6 +186,7 @@ final class AuthViewModel: ObservableObject {
     }
     
     /// Login user with email and password
+    /// Login user
     func login() async {
         guard validateLoginForm() else { return }
         
@@ -201,13 +202,14 @@ final class AuthViewModel: ObservableObject {
             self.user = user
             isAuthenticated = true
             
-            // Prompt for biometric enrollment if available
-            if biometricManager.shouldPromptForEnrollment() {
-                showBiometricPrompt = true
+            // Prompt to enable biometric after successful login
+            if biometricType() != .none && !authService.isBiometricEnabled {
+                // Ask user if they want to enable biometric login
+                // This will be handled in LoginView with an alert
             }
             
-            // Clear form
-            clearLoginForm()
+            // Clear form (don't clear password yet if we need to save for biometric)
+            loginEmail = ""
             
         } catch {
             errorMessage = NetworkManager.shared.friendlyErrorMessage(error)
@@ -233,48 +235,114 @@ final class AuthViewModel: ObservableObject {
     
     /// Login with biometric authentication
     func loginWithBiometrics() async -> Bool {
+        // ✅ FIX: Check if biometric is enabled first
+        guard authService.isBiometricEnabled else {
+            errorMessage = "Biometric login is not enabled. Please log in with email and password first."
+            return false
+        }
+        
         let context = LAContext()
         var error: NSError?
         
         guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
-            // ❌ Don't set errorMessage here - this is shown on login screen
-            Config.Logging.log("Biometric not available: \(error?.localizedDescription ?? "unknown")", level: .warning)
+            errorMessage = "Biometric authentication is not available on this device"
             return false
         }
         
+        isLoading = true
+        errorMessage = nil
+        
         do {
+            // ✅ FIX: First authenticate with biometrics
             let success = try await context.evaluatePolicy(
                 .deviceOwnerAuthenticationWithBiometrics,
                 localizedReason: "Login to MacroLens"
             )
             
-            if success {
-                await loadCurrentUser()
+            guard success else {
+                isLoading = false
+                return false
             }
             
-            return success
+            // ✅ FIX: Then retrieve stored credentials
+            guard let credentials = try authService.getBiometricCredentials() else {
+                errorMessage = "No saved credentials. Please log in with email and password."
+                isLoading = false
+                return false
+            }
+            
+            // ✅ FIX: Actually perform login with retrieved credentials
+            let (authenticatedUser, _) = try await authService.login(
+                email: credentials.email,
+                password: credentials.password
+            )
+            
+            user = authenticatedUser
+            isAuthenticated = true
+            
+            Config.Logging.log("Biometric login successful", level: .info)
+            isLoading = false
+            return true
+            
+        } catch let error as LAError {
+            // Handle biometric-specific errors
+            switch error.code {
+            case .userCancel:
+                errorMessage = nil // User cancelled, don't show error
+            case .userFallback:
+                errorMessage = "Please log in with email and password"
+            case .biometryLockout:
+                errorMessage = "Too many failed attempts. Please try again later."
+            case .biometryNotEnrolled:
+                errorMessage = "Face ID/Touch ID is not set up. Please enable it in Settings."
+            default:
+                errorMessage = "Biometric authentication failed"
+            }
+            isLoading = false
+            return false
+            
         } catch {
-            // ❌ Don't set errorMessage here - only log
-            Config.Logging.log("Biometric authentication failed: \(error)", level: .warning)
+            errorMessage = NetworkManager.shared.friendlyErrorMessage(error)
+            Config.Logging.log("Biometric login failed: \(error)", level: .error)
+            isLoading = false
             return false
         }
     }
-    
-    /// Enable biometric login for current user
-    func enableBiometricLogin() {
-        guard let email = authService.userEmail else {
-            errorMessage = "Unable to enable biometric login"
-            return
+
+    /// Enable biometric authentication (save credentials)
+    func enableBiometric(email: String, password: String) async -> Bool {
+        let context = LAContext()
+        var error: NSError?
+        
+        guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
+            errorMessage = "Biometric authentication is not available"
+            return false
         }
         
         do {
-            try authService.enableBiometricLogin(email: email)
-            showBiometricPrompt = false
-            Config.Logging.log("Biometric login enabled", level: .info)
+            // Authenticate to confirm user consent
+            let success = try await context.evaluatePolicy(
+                .deviceOwnerAuthenticationWithBiometrics,
+                localizedReason: "Enable \(biometricType() == .faceID ? "Face ID" : "Touch ID") for quick sign-in"
+            )
+            
+            guard success else { return false }
+            
+            // Save credentials
+            try authService.saveBiometricCredentials(email: email, password: password)
+            
+            Config.Logging.log("Biometric authentication enabled", level: .info)
+            return true
+            
         } catch {
             errorMessage = "Failed to enable biometric login"
-            Config.Logging.log("Enable biometric failed: \(error)", level: .error)
+            return false
         }
+    }
+
+    /// Disable biometric authentication
+    func disableBiometric() {
+        authService.disableBiometric()
     }
     
     /// Skip biometric enrollment
@@ -422,6 +490,23 @@ final class AuthViewModel: ObservableObject {
         errorMessage = nil
     }
     
+    /// Enable biometric login for current user
+    func enableBiometricLogin() {
+        guard let email = authService.userEmail else {
+            errorMessage = "Unable to enable biometric login"
+            return
+        }
+        
+        do {
+            try authService.enableBiometricLogin(email: email)
+            showBiometricPrompt = false
+            Config.Logging.log("Biometric login enabled", level: .info)
+        } catch {
+            errorMessage = "Failed to enable biometric login"
+            Config.Logging.log("Enable biometric failed: \(error)", level: .error)
+        }
+    }
+    
     // MARK: - Error Handling
     
     /// Clear error message
@@ -429,3 +514,4 @@ final class AuthViewModel: ObservableObject {
         errorMessage = nil
     }
 }
+

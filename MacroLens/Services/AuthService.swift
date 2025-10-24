@@ -280,6 +280,63 @@ final class AuthService: @unchecked Sendable {
         APIClient.shared.refreshToken = refreshToken
     }
     
+    // MARK: - Biometric Credential Management
+        
+    /// Save credentials for biometric authentication
+    /// - Parameters:
+    ///   - email: User email
+    ///   - password: User password (encrypted by Keychain)
+    func saveBiometricCredentials(email: String, password: String) throws {
+        // Use biometric-protected keychain
+        let biometricKeychain = Keychain(service: Config.App.bundleIdentifier)
+            .accessibility(.whenPasscodeSetThisDeviceOnly, authenticationPolicy: .biometryCurrentSet)
+        
+        try biometricKeychain.set(email, key: Config.StorageKeys.biometricEmail)
+        try biometricKeychain.set(password, key: Config.StorageKeys.biometricPassword)
+        
+        // Mark biometric as enabled
+        UserDefaults.standard.set(true, forKey: Config.StorageKeys.biometricEnabled)
+        
+        Config.Logging.log("Biometric credentials saved", level: .info)
+    }
+
+    /// Retrieve credentials for biometric authentication
+    /// - Returns: Tuple of (email, password) if available
+    func getBiometricCredentials() throws -> (email: String, password: String)? {
+        // Check if biometric is enabled
+        guard UserDefaults.standard.bool(forKey: Config.StorageKeys.biometricEnabled) else {
+            return nil
+        }
+        
+        let biometricKeychain = Keychain(service: Config.App.bundleIdentifier)
+            .accessibility(.whenPasscodeSetThisDeviceOnly, authenticationPolicy: .biometryCurrentSet)
+        
+        guard let email = try? biometricKeychain.get(Config.StorageKeys.biometricEmail),
+              let password = try? biometricKeychain.get(Config.StorageKeys.biometricPassword) else {
+            return nil
+        }
+        
+        return (email: email, password: password)
+    }
+
+    /// Check if biometric authentication is enabled
+    var isBiometricEnabled: Bool {
+        return UserDefaults.standard.bool(forKey: Config.StorageKeys.biometricEnabled)
+    }
+
+    /// Disable biometric authentication and clear stored credentials
+    func disableBiometric() {
+        let biometricKeychain = Keychain(service: Config.App.bundleIdentifier)
+            .accessibility(.whenPasscodeSetThisDeviceOnly, authenticationPolicy: .biometryCurrentSet)
+        
+        try? biometricKeychain.remove(Config.StorageKeys.biometricEmail)
+        try? biometricKeychain.remove(Config.StorageKeys.biometricPassword)
+        
+        UserDefaults.standard.set(false, forKey: Config.StorageKeys.biometricEnabled)
+        
+        Config.Logging.log("Biometric authentication disabled", level: .info)
+    }
+    
     /// Check if user is authenticated
     var isAuthenticated: Bool {
         guard let accessToken = try? keychain.get(Config.StorageKeys.accessToken) else {
