@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		17C24B112EAD276F005BBE7C /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 17C24B102EAD276F005BBE7C /* GoogleSignIn */; };
+		17C24B132EAD276F005BBE7C /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 17C24B122EAD276F005BBE7C /* GoogleSignInSwift */; };
 		17EBF54E2EA26A8E00A65832 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 17EBF54D2EA26A8E00A65832 /* KeychainAccess */; };
 		17EBF5512EA26BCE00A65832 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 17EBF5502EA26BCE00A65832 /* SDWebImageSwiftUI */; };
 		17FDA0BB2EA2733900F07062 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 17FDA0BA2EA2733900F07062 /* Alamofire */; };
@@ -102,11 +104,22 @@
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		17C24B092EAD21B9005BBE7C /* Exceptions for "MacroLens" folder in "Copy Bundle Resources" phase from "MacroLens" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 17B944252E9F5B3B0067A319 /* Resources */;
+			membershipExceptions = (
+				Models/SocialAuthModels.swift,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		17B944292E9F5B3B0067A319 /* MacroLens */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				17FDA14A2EA37F2600F07062 /* Exceptions for "MacroLens" folder in "MacroLens" target */,
+				17C24B092EAD21B9005BBE7C /* Exceptions for "MacroLens" folder in "Copy Bundle Resources" phase from "MacroLens" target */,
 			);
 			path = MacroLens;
 			sourceTree = "<group>";
@@ -128,8 +141,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				17C24B112EAD276F005BBE7C /* GoogleSignIn in Frameworks */,
 				17FDA0BB2EA2733900F07062 /* Alamofire in Frameworks */,
 				17EBF5512EA26BCE00A65832 /* SDWebImageSwiftUI in Frameworks */,
+				17C24B132EAD276F005BBE7C /* GoogleSignInSwift in Frameworks */,
 				17EBF54E2EA26A8E00A65832 /* KeychainAccess in Frameworks */,
 				17FDA1882EA3B06E00F07062 /* Lottie in Frameworks */,
 			);
@@ -214,6 +229,8 @@
 				17EBF5502EA26BCE00A65832 /* SDWebImageSwiftUI */,
 				17FDA0BA2EA2733900F07062 /* Alamofire */,
 				17FDA1872EA3B06E00F07062 /* Lottie */,
+				17C24B102EAD276F005BBE7C /* GoogleSignIn */,
+				17C24B122EAD276F005BBE7C /* GoogleSignInSwift */,
 			);
 			productName = MacroLens;
 			productReference = 17B944272E9F5B3B0067A319 /* MacroLens.app */;
@@ -312,6 +329,7 @@
 				17EBF54C2EA26A8500A65832 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 				17EBF54F2EA26BC000A65832 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 				17FDA1862EA3B04600F07062 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+				17C24B0F2EAD274D005BBE7C /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 17B944282E9F5B3B0067A319 /* Products */;
@@ -716,6 +734,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		17C24B0F2EAD274D005BBE7C /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
 		17EBF5462EA26A5500A65832 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
@@ -751,6 +777,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		17C24B102EAD276F005BBE7C /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 17C24B0F2EAD274D005BBE7C /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		17C24B122EAD276F005BBE7C /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 17C24B0F2EAD274D005BBE7C /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
 		17EBF54D2EA26A8E00A65832 /* KeychainAccess */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 17EBF54C2EA26A8500A65832 /* XCRemoteSwiftPackageReference "KeychainAccess" */;

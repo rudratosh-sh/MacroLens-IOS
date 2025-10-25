@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    
+    <!-- Basic App Info -->
     <key>CFBundleIdentifier</key>
     <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
     <key>CFBundleName</key>
@@ -15,11 +17,13 @@
     <key>CFBundleVersion</key>
     <string>1</string>
     
+    <!-- Supported orientations -->
     <key>UISupportedInterfaceOrientations</key>
     <array>
         <string>UIInterfaceOrientationPortrait</string>
     </array>
-    
+
+    <!-- Permissions -->
     <key>NSCameraUsageDescription</key>
     <string>MacroLens needs camera access to scan and identify food items for nutrition tracking.</string>
     <key>NSPhotoLibraryUsageDescription</key>
@@ -32,13 +36,15 @@
     <string>MacroLens reads your activity data to provide personalized calorie recommendations.</string>
     <key>NSHealthUpdateUsageDescription</key>
     <string>MacroLens saves nutrition data to Apple Health.</string>
-    
+
+    <!-- App Transport Security -->
     <key>NSAppTransportSecurity</key>
     <dict>
         <key>NSAllowsArbitraryLoads</key>
         <false/>
     </dict>
-    
+
+    <!-- Fonts -->
     <key>UIAppFonts</key>
     <array>
         <string>Poppins-Regular.ttf</string>
@@ -51,12 +57,29 @@
         <string>Poppins-ExtraLight.ttf</string>
         <string>Poppins-Thin.ttf</string>
     </array>
-    
+
+    <!-- Launch screen -->
     <key>UILaunchScreen</key>
     <dict>
         <key>UIImageName</key>
         <string></string>
     </dict>
+
+    <!-- ✅ Google Sign-In URL Scheme -->
+    <key>CFBundleURLTypes</key>
+    <array>
+      <dict>
+        <key>CFBundleURLSchemes</key>
+        <array>
+          <!-- Must be in the form com.googleusercontent.apps.<CLIENT_ID_PREFIX> -->
+          <string>com.googleusercontent.apps.494210779108-2a6b4sdn40c6u16rv8m1b8c2vvriu8s2</string>
+        </array>
+      </dict>
+    </array>
+
+    <!-- Optional: Placeholder for Apple Sign-In -->
+    <!-- No extra URL schemes needed for Apple Sign-In, but capability must be added in Xcode -->
+    <!-- Xcode → Target → Signing & Capabilities → + Capability → Sign in with Apple -->
 
 </dict>
 </plist>

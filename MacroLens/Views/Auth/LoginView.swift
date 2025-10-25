@@ -165,7 +165,12 @@ struct LoginView: View {
                             
                             // Google Sign In
                             Button(action: {
-                                // TODO: Implement Google Sign In
+                                if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                   let rootVC = scene.windows.first?.rootViewController {
+                                    Task {
+                                        await viewModel.loginWithGoogle(presentingViewController: rootVC)
+                                    }
+                                }
                             }) {
                                 HStack(spacing: Constants.UI.spacing8) {
                                     Image(systemName: "g.circle.fill")
@@ -184,10 +189,13 @@ struct LoginView: View {
                                 )
                             }
                             .padding(.horizontal, Constants.UI.spacing24)
-                            
+
+
                             // Apple Sign In
                             Button(action: {
-                                // TODO: Implement Apple Sign In
+                                Task {
+                                    await viewModel.loginWithApple()
+                                }
                             }) {
                                 HStack(spacing: Constants.UI.spacing8) {
                                     Image(systemName: "apple.logo")

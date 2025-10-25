@@ -9,6 +9,8 @@
 
 import Foundation
 import KeychainAccess
+import GoogleSignIn
+import AuthenticationServices
 
 /// Service for handling authentication operations
 final class AuthService: @unchecked Sendable {

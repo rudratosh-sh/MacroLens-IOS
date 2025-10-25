@@ -22,6 +22,12 @@ enum AppEnvironment {
     }
 }
 
+extension Config {
+    struct OAuth {
+        static let googleClientID = "494210779108-2a6b4sdn40c6u16rv8m1b8c2vvriu8s2.apps.googleusercontent.com"
+    }
+}
+
 struct Config {
     
     // MARK: - Environment
@@ -134,6 +140,9 @@ struct Config {
         static let refreshToken = "refresh_token"
         static let userId = "user_id"
         static let userEmail = "user_email"
+        
+        // Social/Apple Sign In
+        static let appleUserIdentifier = "apple_user_identifier"
         
         // Biometric Authentication
         static let biometricEnabled = "biometric_enabled"

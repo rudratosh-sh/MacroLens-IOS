@@ -515,3 +515,52 @@ final class AuthViewModel: ObservableObject {
     }
 }
 
+// MARK: - Social Logins
+extension AuthViewModel {
+    
+    /// Sign in with Google
+    func loginWithGoogle(presentingViewController: UIViewController) async {
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            let (user, _) = try await SocialAuthService.shared.signInWithGoogle(
+                presentingViewController: presentingViewController
+            )
+            await MainActor.run {
+                self.user = user
+                self.isAuthenticated = true
+            }
+            Config.Logging.log("Google login successful", level: .info)
+        } catch {
+            await MainActor.run {
+                self.errorMessage = NetworkManager.shared.friendlyErrorMessage(error)
+            }
+            Config.Logging.log("Google login failed: \(error)", level: .error)
+        }
+        
+        await MainActor.run { self.isLoading = false }
+    }
+    
+    /// Sign in with Apple
+    func loginWithApple() async {
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            let (user, _) = try await SocialAuthService.shared.signInWithApple()
+            await MainActor.run {
+                self.user = user
+                self.isAuthenticated = true
+            }
+            Config.Logging.log("Apple login successful", level: .info)
+        } catch {
+            await MainActor.run {
+                self.errorMessage = NetworkManager.shared.friendlyErrorMessage(error)
+            }
+            Config.Logging.log("Apple login failed: \(error)", level: .error)
+        }
+        
+        await MainActor.run { self.isLoading = false }
+    }
+}
