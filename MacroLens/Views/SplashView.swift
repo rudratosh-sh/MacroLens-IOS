@@ -4,68 +4,136 @@
 //
 //  Path: MacroLens/Views/SplashView.swift
 //
+//  DEPENDENCIES:
+//  - AuthenticationManager.swift (for auth state)
+//  - UserDefaultsManager.swift (for onboarding flag)
+//  - LoginView.swift
+//  - OnboardingView.swift
+//  - MainTabView.swift
+//  - Lottie framework
+//
+//  PURPOSE:
+//  - Initial splash screen with logo animation
+//  - Smart routing based on:
+//    1. First launch → OnboardingView
+//    2. Not authenticated → LoginView
+//    3. Authenticated → MainTabView (Home)
+//
 
 import SwiftUI
-import Lottie // <-- 1. Import Lottie
+import Lottie
 
 struct SplashView: View {
-    @State private var isActive = false
+    @StateObject private var authManager = AuthenticationManager.shared
+    @State private var isChecking = true
+    @State private var destination: Destination?
+    
+    enum Destination {
+        case onboarding
+        case login
+        case home
+    }
     
     var body: some View {
-        if isActive {
-            OnboardingView()
-        } else {
-            ZStack {
-                Color.white
-                    .edgesIgnoringSafeArea(.all)
+        Group {
+            if isChecking {
+                // Splash Screen with Animation
+                splashContent
+            } else {
+                // Navigate based on destination
+                destinationView
+            }
+        }
+    }
+    
+    // MARK: - Splash Content
+    
+    private var splashContent: some View {
+        ZStack {
+            Color.white
+                .edgesIgnoringSafeArea(.all)
+            
+            VStack(spacing: 0) {
+                Spacer()
                 
-                VStack(spacing: 0) {
-                    Spacer()
-                    
-                    // 2. Replace the Image with your new LottieView
-                    LottieView(animationName: "logo", loopMode: .playOnce) {
-                        // This code now runs when the animation finishes
-                        withAnimation(.easeInOut(duration: 0.1)) {
-                            isActive = true
-                        }
-                    }
-                    .frame(width: 250, height: 250)
-                    
-                    Spacer()
-                    
-                    // Get Started Button
-                    Button(action: {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            isActive = true
-                        }
-                    }) {
-                        Text("Get Started")
-                            .font(.custom("Poppins-SemiBold", size: 18))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 60)
-                            .background(
-                                LinearGradient(
-                                    gradient: Gradient(colors: [
-                                        Color(hex: "007B83"),
-                                        Color(hex: "00BFA6")
-                                    ]),
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .cornerRadius(30)
-                            .shadow(color: Color(hex: "007B83").opacity(0.25), radius: 12, x: 0, y: 8)
-                    }
-                    .padding(.horizontal, 30)
-                    .padding(.bottom, 60)
+                // Logo Animation
+                LottieView(animationName: "logo", loopMode: .playOnce) {
+                    // Animation finished - check destination
+                    checkDestination()
+                }
+                .frame(width: 250, height: 250)
+                
+                Spacer()
+                
+                // Get Started Button (optional - only if checking takes time)
+                if authManager.isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: Color(hex: "007B83")))
+                        .padding(.bottom, 60)
                 }
             }
-            .edgesIgnoringSafeArea(.all)
-            // 3. You don't need the .onAppear timer anymore!
-            // The LottieView will set 'isActive' to true when it finishes.
+        }
+        .edgesIgnoringSafeArea(.all)
+        .onAppear {
+            // Start checking immediately
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                checkDestination()
+            }
+        }
+    }
+    
+    // MARK: - Destination View
+    
+    @ViewBuilder
+    private var destinationView: some View {
+        switch destination {
+        case .onboarding:
+            OnboardingView()
+                .transition(.opacity)
+        case .login:
+            LoginView()
+                .transition(.opacity)
+        case .home:
+            MainTabView()
+                .transition(.opacity)
+        case .none:
+            EmptyView()
+        }
+    }
+    
+    // MARK: - Routing Logic
+    
+    private func checkDestination() {
+        // Priority 1: Check if first launch (onboarding not completed)
+        if !UserDefaultsManager.shared.hasCompletedOnboarding {
+            Config.Logging.log("First launch detected - showing onboarding", level: .info)
+            withAnimation(.easeInOut(duration: 0.3)) {
+                destination = .onboarding
+                isChecking = false
+            }
+            return
+        }
+        
+        // Priority 2: Check authentication state
+        if authManager.isAuthenticated && authManager.currentUser != nil {
+            Config.Logging.log("User authenticated - navigating to home", level: .info)
+            withAnimation(.easeInOut(duration: 0.3)) {
+                destination = .home
+                isChecking = false
+            }
+        } else {
+            Config.Logging.log("User not authenticated - showing login", level: .info)
+            withAnimation(.easeInOut(duration: 0.3)) {
+                destination = .login
+                isChecking = false
+            }
         }
     }
 }
 
-
+// MARK: - Preview
+struct SplashView_Previews: PreviewProvider {
+    static var previews: some View {
+        SplashView()
+    }
+}

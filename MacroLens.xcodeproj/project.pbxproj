@@ -118,12 +118,19 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		17E4DD942EAE0EDA00EC2818 /* Exceptions for "MacroLens" folder in "MacroLensUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Helpers/BaseUITestCase.swift,
+			);
+			target = 17B944422E9F5B3E0067A319 /* MacroLensUITests */;
+		};
 		17FDA14A2EA37F2600F07062 /* Exceptions for "MacroLens" folder in "MacroLens" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Helpers/BaseUITestCase.swift,
 				Info.plist,
 				MacroLens.xcdatamodeld,
-				Models/Untitled.swift,
 			);
 			target = 17B944262E9F5B3B0067A319 /* MacroLens */;
 		};
@@ -145,6 +152,7 @@
 			exceptions = (
 				17FDA14A2EA37F2600F07062 /* Exceptions for "MacroLens" folder in "MacroLens" target */,
 				17C24B092EAD21B9005BBE7C /* Exceptions for "MacroLens" folder in "Copy Bundle Resources" phase from "MacroLens" target */,
+				17E4DD942EAE0EDA00EC2818 /* Exceptions for "MacroLens" folder in "MacroLensUITests" target */,
 			);
 			path = MacroLens;
 			sourceTree = "<group>";

@@ -26,6 +26,7 @@
 import Foundation
 import Combine
 import KeychainAccess
+import UIKit
 
 /// Centralized authentication state manager
 @MainActor
@@ -283,7 +284,7 @@ final class AuthenticationManager: ObservableObject {
         stopTokenRefreshTimer()
         
         // Clear auth service tokens
-        authService.clearTokens()
+        authService.clearAuthData()
         
         // Clear state
         isAuthenticated = false
