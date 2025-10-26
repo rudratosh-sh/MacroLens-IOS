@@ -2,7 +2,27 @@
 //  APIClient.swift
 //  MacroLens
 //
+//  Created for: Day 1 - Task 1.4 (Core Architecture Setup)
 //  Path: MacroLens/Services/APIClient.swift
+//
+//  PURPOSE:
+//  Low-level HTTP client using Alamofire for making API requests.
+//  Handles authentication, token management, request/response lifecycle.
+//
+//  DEPENDENCIES:
+//  - Alamofire (HTTP networking)
+//  - KeychainAccess (secure token storage)
+//  - Config.swift (API configuration)
+//  - APIEndpoint.swift (HTTPMethod enum, endpoint definitions)
+//  - Constants.swift (error messages)
+//
+//  USED BY:
+//  - NetworkManager.swift (high-level wrapper)
+//  - All service classes (AuthService, FoodService, etc.)
+//
+//  REVISION:
+//  - Removed duplicate HTTPMethod enum (now in APIEndpoint.swift)
+//  - Kept core client responsibilities
 //
 
 import Foundation
@@ -48,15 +68,6 @@ enum APIError: Error, LocalizedError {
     }
 }
 
-// MARK: - HTTP Methods
-enum HTTPMethod: String {
-    case get = "GET"
-    case post = "POST"
-    case put = "PUT"
-    case patch = "PATCH"
-    case delete = "DELETE"
-}
-
 // MARK: - API Response
 struct APIResponse<T: Decodable & Sendable>: Decodable, Sendable {
     let success: Bool
@@ -90,6 +101,7 @@ class APIClient: @unchecked Sendable {
     }
     
     // MARK: - Token Management
+    
     var accessToken: String? {
         get { try? keychain.get(Config.StorageKeys.accessToken) }
         set {
@@ -115,6 +127,14 @@ class APIClient: @unchecked Sendable {
     // MARK: - Request Methods
     
     /// Generic request method
+    /// - Parameters:
+    ///   - endpoint: API endpoint path (e.g., "/auth/login")
+    ///   - method: HTTP method (GET, POST, PUT, DELETE)
+    ///   - parameters: Request parameters (optional)
+    ///   - encoding: Parameter encoding strategy
+    ///   - headers: Additional HTTP headers (optional)
+    /// - Returns: Decoded response of type T
+    /// - Throws: APIError on failure
     func request<T: Decodable & Sendable>(
         endpoint: String,
         method: HTTPMethod = .get,
@@ -155,6 +175,14 @@ class APIClient: @unchecked Sendable {
     }
     
     /// Upload request with multipart form data
+    /// - Parameters:
+    ///   - endpoint: API endpoint path
+    ///   - data: File data to upload
+    ///   - fileName: Name of the file
+    ///   - mimeType: MIME type (default: image/jpeg)
+    ///   - parameters: Additional form parameters
+    /// - Returns: Decoded response of type T
+    /// - Throws: APIError on failure
     func upload<T: Decodable & Sendable>(
         endpoint: String,
         data: Data,
@@ -202,12 +230,19 @@ class APIClient: @unchecked Sendable {
     
     // MARK: - Helper Methods
     
+    /// Build full URL from endpoint path
+    /// - Parameter endpoint: API endpoint path
+    /// - Returns: Complete URL or nil if invalid
     private func buildURL(endpoint: String) -> URL? {
         let baseURL = Config.API.fullBaseURL
         let fullPath = endpoint.hasPrefix("/") ? endpoint : "/\(endpoint)"
         return URL(string: baseURL + fullPath)
     }
     
+    /// Handle API response and resume continuation
+    /// - Parameters:
+    ///   - response: Alamofire DataResponse
+    ///   - continuation: Checked continuation to resume
     private func handleResponse<T: Decodable & Sendable>(
         _ response: DataResponse<APIResponse<T>, AFError>,
         continuation: CheckedContinuation<T, Error>
@@ -233,6 +268,11 @@ class APIClient: @unchecked Sendable {
         }
     }
     
+    /// Map Alamofire error to APIError
+    /// - Parameters:
+    ///   - error: Alamofire error
+    ///   - statusCode: HTTP status code (optional)
+    /// - Returns: Mapped APIError
     private func mapAFError(_ error: AFError, statusCode: Int?) -> APIError {
         if let statusCode = statusCode {
             switch statusCode {
@@ -261,6 +301,8 @@ class APIClient: @unchecked Sendable {
     }
     
     // MARK: - Clear Tokens (Logout)
+    
+    /// Clear all authentication tokens from keychain
     func clearTokens() {
         accessToken = nil
         refreshToken = nil
@@ -268,8 +310,15 @@ class APIClient: @unchecked Sendable {
 }
 
 // MARK: - Auth Interceptor
+
+/// Request interceptor for adding authentication headers and handling retries
 class AuthInterceptor: RequestInterceptor {
     
+    /// Adapt request by adding common headers
+    /// - Parameters:
+    ///   - urlRequest: Original URL request
+    ///   - session: Alamofire session
+    ///   - completion: Completion handler with adapted request
     func adapt(
         _ urlRequest: URLRequest,
         for session: Session,
@@ -277,12 +326,21 @@ class AuthInterceptor: RequestInterceptor {
     ) {
         var urlRequest = urlRequest
         
+        // Add app version header
         urlRequest.setValue(Config.App.version, forHTTPHeaderField: "X-App-Version")
+        
+        // Add platform header
         urlRequest.setValue("iOS", forHTTPHeaderField: "X-Platform")
         
         completion(.success(urlRequest))
     }
     
+    /// Retry request on specific errors (e.g., 401 Unauthorized)
+    /// - Parameters:
+    ///   - request: Failed request
+    ///   - session: Alamofire session
+    ///   - error: Error that caused failure
+    ///   - completion: Completion handler with retry decision
     func retry(
         _ request: Request,
         for session: Session,
@@ -295,6 +353,8 @@ class AuthInterceptor: RequestInterceptor {
             return
         }
         
+        // TODO: Implement token refresh logic in Day 2
+        // For now, do not retry 401 errors
         completion(.doNotRetry)
     }
 }
