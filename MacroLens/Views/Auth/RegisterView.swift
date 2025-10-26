@@ -5,6 +5,7 @@
 //  Path: MacroLens/Views/Auth/RegisterView.swift
 //
 //  Description: Registration screen with compact design, password strength, and terms
+//  ✅ UPDATED: Added navigation to ProfileSetupContainerView after successful registration
 //
 
 import SwiftUI
@@ -15,6 +16,9 @@ struct RegisterView: View {
     // MARK: - Environment
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var viewModel: AuthViewModel
+    
+    // MARK: - State
+    @State private var navigateToProfileSetup = false
     
     // MARK: - Body
     @available(iOS 16.0, *)
@@ -166,6 +170,11 @@ struct RegisterView: View {
                             ) {
                                 Task {
                                     await viewModel.register()
+                                    
+                                    // ✅ ADDED: Navigate to profile setup on success
+                                    if viewModel.isAuthenticated {
+                                        navigateToProfileSetup = true
+                                    }
                                 }
                             }
                             .disabled(!isFormValid)
@@ -272,6 +281,10 @@ struct RegisterView: View {
                             .font(.iconMedium)
                     }
                 }
+            }
+            // ✅ ADDED: Navigation destination for profile setup
+            .navigationDestination(isPresented: $navigateToProfileSetup) {
+                ProfileSetupContainerView()
             }
         }
     }

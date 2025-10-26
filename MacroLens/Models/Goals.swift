@@ -115,12 +115,12 @@ extension Goals {
         switch goalType {
         case .loseWeight:
             return "Lose Weight"
-        case .maintainWeight:
+        case .maintain:
             return "Maintain Weight"
-        case .gainWeight:
-            return "Gain Weight"
-        case .buildMuscle:
-            return "Build Muscle"
+        case .gainMuscle:
+            return "Gain Muscle"
+        case .improveHealth:
+            return "Improve Health"
         }
     }
     
@@ -135,8 +135,8 @@ extension Goals {
             return "Moderately Active (3-5 days/week)"
         case .veryActive:
             return "Very Active (6-7 days/week)"
-        case .extraActive:
-            return "Extra Active (athlete, 2x/day)"
+        case .extremelyActive:
+            return "Extremely Active (athlete, 2x/day)"
         }
     }
     

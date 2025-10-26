@@ -116,7 +116,7 @@ struct MockDataGenerator {
     
     /// Generate random goal type
     static func randomGoalType() -> GoalType {
-        return GoalType.allCases.randomElement() ?? .maintainWeight
+        return GoalType.allCases.randomElement() ?? .maintain
     }
     
     /// Generate random activity level

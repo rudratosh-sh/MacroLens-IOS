@@ -21,7 +21,9 @@
 //
 
 import Foundation
+#if canImport(FirebaseCrashlytics)
 import FirebaseCrashlytics
+#endif
 
 /// Manager for Firebase Crashlytics error reporting
 final class CrashlyticsManager {
@@ -30,7 +32,9 @@ final class CrashlyticsManager {
     
     static let shared = CrashlyticsManager()
     
+    #if canImport(FirebaseCrashlytics)
     private let crashlytics = Crashlytics.crashlytics()
+    #endif
     
     private init() {}
     
@@ -39,13 +43,17 @@ final class CrashlyticsManager {
     /// Set user identifier for crash reports
     /// - Parameter userId: User identifier
     func setUserId(_ userId: String) {
+        #if canImport(FirebaseCrashlytics)
         crashlytics.setUserID(userId)
+        #endif
         Config.Logging.log("Crashlytics user ID set: \(userId)", level: .info)
     }
     
     /// Clear user identifier (on logout)
     func clearUserId() {
+        #if canImport(FirebaseCrashlytics)
         crashlytics.setUserID("")
+        #endif
         Config.Logging.log("Crashlytics user ID cleared", level: .info)
     }
     
@@ -56,6 +64,7 @@ final class CrashlyticsManager {
     ///   - key: Key name
     ///   - value: Value (String, Int, Bool, Double)
     func setCustomKey(_ key: String, value: Any) {
+        #if canImport(FirebaseCrashlytics)
         if let stringValue = value as? String {
             crashlytics.setCustomValue(stringValue, forKey: key)
         } else if let intValue = value as? Int {
@@ -67,6 +76,7 @@ final class CrashlyticsManager {
         } else {
             crashlytics.setCustomValue("\(value)", forKey: key)
         }
+        #endif
         
         Config.Logging.log("Crashlytics custom key set: \(key)", level: .debug)
     }
@@ -84,7 +94,9 @@ final class CrashlyticsManager {
     /// Log message to Crashlytics
     /// - Parameter message: Log message
     func log(_ message: String) {
+        #if canImport(FirebaseCrashlytics)
         crashlytics.log(message)
+        #endif
         Config.Logging.log("Crashlytics log: \(message)", level: .debug)
     }
     
@@ -100,7 +112,9 @@ final class CrashlyticsManager {
             logMessage += " | \(metadataString)"
         }
         
+        #if canImport(FirebaseCrashlytics)
         crashlytics.log(logMessage)
+        #endif
         Config.Logging.log(logMessage, level: .debug)
     }
     
@@ -117,7 +131,9 @@ final class CrashlyticsManager {
         }
         
         // Record error
+        #if canImport(FirebaseCrashlytics)
         crashlytics.record(error: error)
+        #endif
         
         Config.Logging.log("Crashlytics error recorded: \(error.localizedDescription)", level: .error)
     }
