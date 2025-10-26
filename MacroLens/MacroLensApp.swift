@@ -25,7 +25,7 @@ import FirebaseCrashlytics
 
 @main
 struct MacroLensApp: App {
-    @StateObject private var authViewModel = AuthViewModel()
+    @StateObject private var authManager = AuthenticationManager.shared
     
     // MARK: - Initialization
     
@@ -41,23 +41,23 @@ struct MacroLensApp: App {
     
     var body: some Scene {
         WindowGroup {
-            Group {
-                if authViewModel.isAuthenticated {
-                    MainTabView()
-                        .environmentObject(authViewModel)
-                } else {
-                    LoginView()
-                        .environmentObject(authViewModel)
+            // Use SplashView as the root view - it handles all navigation logic
+            SplashView()
+                .onAppear {
+                    // Check authentication status when app launches
+                    authManager.checkAuthenticationStatus()
+                    
+                    // Track app launch
+                    Analytics.logEvent("app_launch", parameters: [
+                        "environment": Config.environment.description,
+                        "version": Config.App.version,
+                        "build": Config.App.build
+                    ])
                 }
-            }
-            .onAppear {
-                // Track app launch
-                Analytics.logEvent("app_launch", parameters: [
-                    "environment": Config.environment.description,
-                    "version": Config.App.version,
-                    "build": Config.App.build
-                ])
-            }
+                .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+                    // Re-check authentication when app becomes active
+                    authManager.checkAuthenticationStatus()
+                }
         }
     }
     

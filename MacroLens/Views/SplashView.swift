@@ -27,6 +27,7 @@ import Lottie
 
 struct SplashView: View {
     @StateObject private var authManager = AuthenticationManager.shared
+    @StateObject private var authViewModel = AuthViewModel()
     @State private var isChecking = true
     @State private var destination: Destination?
     
@@ -83,6 +84,39 @@ struct SplashView: View {
                 checkDestination()
             }
         }
+        .onChange(of: authManager.isAuthenticated) { _ in
+            // Re-check destination when auth state changes
+            checkDestination()
+        }
+        .onChange(of: authManager.currentUser) { _ in
+            // Re-check destination when user changes
+            checkDestination()
+        }
+        .onChange(of: UserDefaultsManager.shared.hasCompletedProfileSetup) { _ in
+            // Re-check destination when profile setup completion changes
+            checkDestination()
+        }
+        .onAppear {
+            // Sync AuthViewModel with AuthenticationManager state
+            if authManager.isAuthenticated {
+                authViewModel.checkAuthStatus()
+            }
+        }
+        .onChange(of: authViewModel.isAuthenticated) { isAuth in
+            Config.Logging.log("SplashView: AuthViewModel.isAuthenticated changed to \(isAuth)", level: .info)
+            // Sync authentication state changes back to AuthManager
+            if isAuth {
+                // Force auth manager to check status after successful login and wait for completion
+                Task {
+                    Config.Logging.log("SplashView: Calling authManager.checkAuthenticationStatusAsync()", level: .info)
+                    await authManager.checkAuthenticationStatusAsync()
+                    await MainActor.run {
+                        Config.Logging.log("SplashView: Auth sync complete, calling checkDestination()", level: .info)
+                        checkDestination()
+                    }
+                }
+            }
+        }
     }
     
     // MARK: - Destination View
@@ -95,6 +129,7 @@ struct SplashView: View {
                 .transition(.opacity)
         case .login:
             LoginView()
+                .environmentObject(authViewModel)
                 .transition(.opacity)
         case .profileSetup:  // ✅ ADDED
             ProfileSetupContainerView()
@@ -110,6 +145,8 @@ struct SplashView: View {
     // MARK: - Routing Logic
     
     private func checkDestination() {
+        Config.Logging.log("SplashView: Checking destination - Auth: \(authManager.isAuthenticated), User: \(authManager.currentUser?.email ?? "nil"), ProfileComplete: \(UserDefaultsManager.shared.hasCompletedProfileSetup), OnboardingComplete: \(UserDefaultsManager.shared.hasCompletedOnboarding)", level: .debug)
+        
         // Priority 1: Check if first launch (onboarding not completed)
         if !UserDefaultsManager.shared.hasCompletedOnboarding {
             Config.Logging.log("First launch detected - showing onboarding", level: .info)
@@ -132,7 +169,7 @@ struct SplashView: View {
                 return
             }
             
-            Config.Logging.log("User authenticated - navigating to home", level: .info)
+            Config.Logging.log("User authenticated and profile complete - navigating to home", level: .info)
             withAnimation(.easeInOut(duration: 0.3)) {
                 destination = .home
                 isChecking = false

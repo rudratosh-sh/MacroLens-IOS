@@ -23,9 +23,14 @@ import SwiftUI
 struct ProfileSetupContainerView: View {
     @StateObject private var viewModel = ProfileSetupViewModel()
     @Environment(\.dismiss) var dismiss
+    @State private var navigateToHome = false
     
     var body: some View {
-        if #available(iOS 17.0, *) {
+        if navigateToHome {
+            // Navigate to MainTabView after successful profile setup
+            MainTabView()
+                .transition(.opacity)
+        } else if #available(iOS 17.0, *) {
             // iOS 17+ implementation with NavigationStack and new onChange syntax
             NavigationStack {
                 contentView
@@ -99,10 +104,11 @@ struct ProfileSetupContainerView: View {
     
     private func handleSuccess(_ showSuccess: Bool) {
         if showSuccess {
-            // Navigate to home after 2 seconds
+            // Navigate to home after 2 seconds with smooth transition
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                dismiss()
-                // TODO: Navigate to MainTabView
+                withAnimation(.easeInOut(duration: 0.5)) {
+                    navigateToHome = true
+                }
             }
         }
     }

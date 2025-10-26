@@ -88,6 +88,27 @@ final class AuthenticationManager: ObservableObject {
         }
     }
     
+    /// Async version - Check if user is authenticated and load user data
+    func checkAuthenticationStatusAsync() async {
+        await MainActor.run {
+            isLoading = true
+        }
+        
+        // Check if tokens exist in Keychain
+        guard authService.isAuthenticated else {
+            await MainActor.run {
+                isAuthenticated = false
+                currentUser = nil
+                isLoading = false
+            }
+            Config.Logging.log("No valid tokens found", level: .debug)
+            return
+        }
+        
+        // Load current user
+        await loadCurrentUser()
+    }
+    
     /// Load current user profile from API
     private func loadCurrentUser() async {
         do {

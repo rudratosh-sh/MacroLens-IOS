@@ -262,6 +262,9 @@ class ProfileSetupViewModel: ObservableObject {
             // ✅ ADDED: Mark profile setup as complete
             UserDefaultsManager.shared.completeProfileSetup()
             
+            // Force refresh the authentication state
+            try await authService.getCurrentUser()
+            
             // Success
             Config.Logging.log("Profile setup completed successfully", level: .info)
             

@@ -202,6 +202,8 @@ final class AuthViewModel: ObservableObject {
             self.user = user
             isAuthenticated = true
             
+            Config.Logging.log("AuthViewModel: Login successful - isAuthenticated set to true", level: .info)
+            
             // Prompt to enable biometric after successful login
             if biometricType() != .none && !authService.isBiometricEnabled {
                 // Ask user if they want to enable biometric login
