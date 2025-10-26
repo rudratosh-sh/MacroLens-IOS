@@ -8,6 +8,7 @@
 //  - ProfileSetupModels.swift
 //  - NetworkManager.swift
 //  - AuthService.swift
+//  - UserDefaultsManager.swift (Added for progress saving)
 //
 //  USED BY:
 //  - BasicInfoView
@@ -19,10 +20,11 @@
 //  - Manage state for 4-step profile setup flow
 //  - Validate input at each step
 //  - Submit profile data to backend API
+//  - ✅ ADDED: Save progress between steps and mark setup as complete
 //
 
 import Foundation
-import SwiftUI
+import SwiftUI // ✅ FIXED: Re-added missing SwiftUI import
 import Combine
 
 @MainActor
@@ -68,6 +70,15 @@ class ProfileSetupViewModel: ObservableObject {
     private let authService = AuthService.shared
     private let networkManager = NetworkManager.shared
     private var cancellables = Set<AnyCancellable>()
+    
+    // MARK: - Initializer
+    
+    // ✅ ADDED: Initialize with saved step
+    init() {
+        let savedStep = UserDefaultsManager.shared.currentProfileStep
+        self.currentStep = savedStep
+        Config.Logging.log("ProfileSetupViewModel initialized at step \(savedStep)", level: .info)
+    }
     
     // MARK: - Step 1: Basic Info Validation
     
@@ -159,6 +170,8 @@ class ProfileSetupViewModel: ObservableObject {
             if currentStep < 4 {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     currentStep += 1
+                    // ✅ ADDED: Save progress
+                    UserDefaultsManager.shared.saveProfileStep(currentStep)
                 }
             } else {
                 // Final step - submit profile
@@ -173,6 +186,8 @@ class ProfileSetupViewModel: ObservableObject {
         if currentStep > 1 {
             withAnimation(.easeInOut(duration: 0.3)) {
                 currentStep -= 1
+                // ✅ ADDED: Save progress
+                UserDefaultsManager.shared.saveProfileStep(currentStep)
             }
         }
     }
@@ -229,7 +244,7 @@ class ProfileSetupViewModel: ObservableObject {
                 goal: goal
             )
             
-            // Submit profile to backend
+            // ✅ FIXED: Kept original network call that uses the toDictionary() extension
             let profileRequestDict = try profileRequest.toDictionary()
             let response: ProfileResponse = try await networkManager.put(
                 endpoint: APIEndpoint.users(.updateProfile).fullURL,
@@ -243,6 +258,9 @@ class ProfileSetupViewModel: ObservableObject {
             if !dietaryRestrictions.isEmpty || !allergies.isEmpty {
                 try await submitPreferences()
             }
+            
+            // ✅ ADDED: Mark profile setup as complete
+            UserDefaultsManager.shared.completeProfileSetup()
             
             // Success
             Config.Logging.log("Profile setup completed successfully", level: .info)
@@ -278,6 +296,7 @@ class ProfileSetupViewModel: ObservableObject {
             reminderTimes: ["08:00", "12:00", "18:00"]
         )
         
+        // ✅ FIXED: Kept original network call that uses the toDictionary() extension
         let preferencesRequestDict = try preferencesRequest.toDictionary()
         let _: PreferencesResponse = try await networkManager.put(
             endpoint: APIEndpoint.users(.updatePreferences).fullURL,
@@ -311,6 +330,7 @@ class ProfileSetupViewModel: ObservableObject {
 
 // MARK: - Codable to Dictionary Extension
 
+// ✅ FIXED: Re-added the missing extension that is required for network calls
 extension Encodable {
     func toDictionary() throws -> [String: Any] {
         let data = try JSONEncoder().encode(self)

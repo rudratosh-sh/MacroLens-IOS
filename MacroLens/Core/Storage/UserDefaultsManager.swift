@@ -71,6 +71,19 @@ final class UserDefaultsManager: ObservableObject {
         }
     }
     
+    // ✅ ADDED: Profile setup tracking
+    @Published var hasCompletedProfileSetup: Bool {
+        didSet {
+            defaults.set(hasCompletedProfileSetup, forKey: Keys.profileSetupCompleted)
+        }
+    }
+    
+    @Published var currentProfileStep: Int {
+        didSet {
+            defaults.set(currentProfileStep, forKey: Keys.currentProfileStep)
+        }
+    }
+    
     // MARK: - Initialization
     
     private init(suiteName: String? = nil) {
@@ -87,6 +100,11 @@ final class UserDefaultsManager: ObservableObject {
         let unitRawValue = defaults.string(forKey: Keys.measurementUnit) ?? MeasurementUnit.metric.rawValue
         self.selectedMeasurementUnit = MeasurementUnit(rawValue: unitRawValue) ?? .metric
         
+        // ✅ ADDED: Load profile setup state
+        self.hasCompletedProfileSetup = defaults.bool(forKey: Keys.profileSetupCompleted)
+        self.currentProfileStep = defaults.integer(forKey: Keys.currentProfileStep)
+        if self.currentProfileStep == 0 { self.currentProfileStep = 1 }
+        
         Config.Logging.log("UserDefaultsManager initialized", level: .info)
     }
     
@@ -95,6 +113,8 @@ final class UserDefaultsManager: ObservableObject {
     private struct Keys {
         // Onboarding & First Launch
         static let onboardingCompleted = Config.StorageKeys.onboardingCompleted
+        static let profileSetupCompleted = "profile_setup_completed" // ✅ ADDED
+        static let currentProfileStep = "current_profile_step" // ✅ ADDED
         static let hasPromptedBiometric = "has_prompted_biometric"
         static let firstLaunchDate = "first_launch_date"
         static let appLaunchCount = "app_launch_count"
@@ -137,6 +157,24 @@ final class UserDefaultsManager: ObservableObject {
     func completeOnboarding() {
         hasCompletedOnboarding = true
         Config.Logging.log("Onboarding completed", level: .info)
+    }
+    
+    // ✅ ADDED: Profile setup methods
+    func completeProfileSetup() {
+        hasCompletedProfileSetup = true
+        currentProfileStep = 1
+        Config.Logging.log("Profile setup completed", level: .info)
+    }
+    
+    func saveProfileStep(_ step: Int) {
+        currentProfileStep = step
+        Config.Logging.log("Profile setup step saved: \(step)", level: .info)
+    }
+    
+    func resetProfileSetup() {
+        hasCompletedProfileSetup = false
+        currentProfileStep = 1
+        Config.Logging.log("Profile setup reset", level: .info)
     }
     
     /// Check if this is first app launch
@@ -318,6 +356,8 @@ final class UserDefaultsManager: ObservableObject {
         
         // Reload initial values
         hasCompletedOnboarding = false
+        hasCompletedProfileSetup = false // ✅ ADDED
+        currentProfileStep = 1 // ✅ ADDED
         notificationsEnabled = false
         selectedTheme = .system
         selectedMeasurementUnit = .metric

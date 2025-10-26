@@ -10,6 +10,7 @@
 //  - LoginView.swift
 //  - OnboardingView.swift
 //  - MainTabView.swift
+//  - ProfileSetupContainerView.swift (✅ ADDED)
 //  - Lottie framework
 //
 //  PURPOSE:
@@ -17,7 +18,8 @@
 //  - Smart routing based on:
 //    1. First launch → OnboardingView
 //    2. Not authenticated → LoginView
-//    3. Authenticated → MainTabView (Home)
+//    3. Authenticated but profile incomplete → ProfileSetupContainerView (✅ ADDED)
+//    4. Authenticated → MainTabView (Home)
 //
 
 import SwiftUI
@@ -31,6 +33,7 @@ struct SplashView: View {
     enum Destination {
         case onboarding
         case login
+        case profileSetup  // ✅ ADDED
         case home
     }
     
@@ -93,6 +96,9 @@ struct SplashView: View {
         case .login:
             LoginView()
                 .transition(.opacity)
+        case .profileSetup:  // ✅ ADDED
+            ProfileSetupContainerView()
+                .transition(.opacity)
         case .home:
             MainTabView()
                 .transition(.opacity)
@@ -116,6 +122,16 @@ struct SplashView: View {
         
         // Priority 2: Check authentication state
         if authManager.isAuthenticated && authManager.currentUser != nil {
+            // ✅ ADDED: Priority 3 - Check profile setup completion
+            if !UserDefaultsManager.shared.hasCompletedProfileSetup {
+                Config.Logging.log("Profile setup incomplete - resuming at step \(UserDefaultsManager.shared.currentProfileStep)", level: .info)
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    destination = .profileSetup
+                    isChecking = false
+                }
+                return
+            }
+            
             Config.Logging.log("User authenticated - navigating to home", level: .info)
             withAnimation(.easeInOut(duration: 0.3)) {
                 destination = .home
