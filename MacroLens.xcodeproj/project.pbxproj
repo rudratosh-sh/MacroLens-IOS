@@ -123,6 +123,7 @@
 			membershipExceptions = (
 				Info.plist,
 				MacroLens.xcdatamodeld,
+				Models/Untitled.swift,
 			);
 			target = 17B944262E9F5B3B0067A319 /* MacroLens */;
 		};
